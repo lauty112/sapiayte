@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Panel de Administración - Sapy'Aite</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/froned/styles/admin.css">
+</head>
+<body>
+  <div class="admin-wrapper">
+    <header class="admin-header">
+      <h1>Panel de Control <span>Sapy'Aite</span></h1>
+      <button id="logoutBtn" class="btn-logout">Cerrar Sesión</button>
+    </header>
+
+    <main class="admin-main">
+      <!-- Formulario para crear/editar producto -->
+      <section class="product-form-section">
+        <h2>Producto</h2>
+        <form id="productForm">
+          <input type="hidden" id="productId" value="">
+          <div class="form-row">
+            <div class="form-group">
+              <label>Nombre *</label>
+              <input type="text" id="nombre" required>
+            </div>
+            <div class="form-group">
+              <label>Categoría *</label>
+              <select id="categoriaId" required></select>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Descripción</label>
+            <textarea id="descripcion" rows="2"></textarea>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Precio *</label>
+              <input type="number" id="precio" step="0.01" required>
+            </div>
+            <div class="form-group">
+              <label>URL Imagen</label>
+              <input type="text" id="imagenUrl" placeholder="https://...">
+            </div>
+          </div>
+          <div class="form-group checkbox">
+            <label>
+              <input type="checkbox" id="disponible" checked> Disponible
+            </label>
+          </div>
+          <div class="form-actions">
+            <button type="submit" class="btn-save">Guardar producto</button>
+            <button type="button" id="cancelEditBtn" class="btn-cancel">Cancelar edición</button>
+          </div>
+        </form>
+      </section>
+
+      <!-- Listado de productos -->
+      <section class="product-list-section">
+        <h2>Lista de productos</h2>
+        <div class="table-responsive">
+          <table id="productsTable">
+            <thead>
+              <tr><th>ID</th><th>Nombre</th><th>Categoría</th><th>Precio</th><th>Disponible</th><th>Acciones</th></tr>
+            </thead>
+            <tbody id="productsTbody"></tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+  </div>
+  <script src="admin.js"></script>
+</body>
+</html>

@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>sapy'aite</title>
+  <link rel="icon" type="image/x-icon" href="img/logosapy.jpg">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/froned/styles/style.css"/>
+</head>
+<body>
+
+  <!-- NAVBAR -->
+  <nav>
+    <a href="#inicio" class="nav-logo">Sapy' <span>Aite</span></a>
+    <div class="nav-links">
+      <a href="#menu">Menú</a>
+      <a href="qr-scaner.html" class="btn-scan">📷 Escanear Mesa</a>
+      <a href="#galeria">Galería</a>
+      <a href="#contacto">Contacto</a>
+    </div>
+    <a href="login.html" class="btn-login">Iniciar sesión</a>
+    <a href="#reservas" class="btn">Reservar mesa</a>
+  </nav>
+
+
+  <!-- HERO -->
+  <section id="inicio">
+    <div class="hero-bg"></div>
+    <div class="hero-ring"></div>
+    <div class="hero-ring-2"></div>
+
+    <div class="hero-inner">
+      <div>
+        <h1 class="hero-title fade-2">
+          patio<br>
+          <em>de comidas</em><br>
+        </h1>
+        <div class="hero-btns fade-4">
+          <a href="#menu" class="btn">Ver menú</a>
+          <a href="#reservas" class="btn btn--ghost">Hacer reserva</a>
+        </div>
+      </div>
+
+      <div class="hero-visual fade-3">
+        <div class="hero-plate">
+          🥩
+          <div class="hero-badge">
+            <p>Abierto hoy</p>
+            <p>12:00 — 00:00 hs</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="scroll-indicator">
+      <span>Scroll</span>
+      <div class="scroll-line"></div>
+    </div>
+  </section>
+
+
+  <!-- MENÚ -->
+  <section id="menu">
+    <div class="menu-inner">
+      <div class="menu-header">
+        <span class="section-label">Sabores auténticos</span>
+        <div class="divider divider--center"></div>
+        <h2>Nuestro Menú</h2>
+        <p class="menu-subtitle">Platos preparados con ingredientes frescos y pasión</p>
+      </div>
+
+      <div class="menu-search">
+        <div class="search-container">
+          <span class="search-icon">🔍</span>
+          <input type="text" id="searchInput" placeholder="Buscar en el menú..." onkeyup="filtrarMenu()">
+          <button class="search-clear" onclick="limpiarBusqueda()">✕</button>
+        </div>
+      </div>
+
+      <div class="tabs" id="categories-tabs"></div>
+
+      <div class="menu-grid-container">
+        <div class="menu-grid active" id="menu-items-container"></div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- RESERVAS -->
+  <section id="reservas">
+    <div class="reservas-inner">
+      <span class="section-label">¿Tenés un momento especial?</span>
+      <div class="divider divider--center"></div>
+      <h2>Reservá tu mesa</h2>
+      <p>Asegurá tu lugar con tiempo. Para grupos mayores de 8 personas, contactanos directamente.</p>
+
+      <!--
+        ✅ FIX: Se eliminó onsubmit="return false;" del HTML.
+        El submit es manejado exclusivamente por el addEventListener en scrip.js,
+        que ya llama a e.preventDefault(). Tener ambos era redundante y confuso.
+      -->
+      <form class="form-grid">
+        <div class="form-group">
+          <label>Nombre</label>
+          <input type="text" name="nombre" placeholder="Tu nombre">
+        </div>
+        <div class="form-group">
+          <label>Teléfono</label>
+          <input type="tel" name="telefono" placeholder="+54 11 ...">
+        </div>
+        <div class="form-group">
+          <label>Fecha</label>
+          <input type="date" name="fecha">
+        </div>
+        <div class="form-group">
+          <label>Personas</label>
+          <select name="personas">
+            <option>1 — 2 personas</option>
+            <option>3 — 4 personas</option>
+            <option>5 — 6 personas</option>
+            <option>7 — 8 personas</option>
+          </select>
+        </div>
+        <div class="form-group form-full">
+          <label>Mensaje (opcional)</label>
+          <textarea name="mensaje" rows="3" placeholder="Ocasión especial, alergias, preferencias..."></textarea>
+        </div>
+        <div class="form-submit">
+          <button type="submit" class="btn btn--dark">📲 Reservar por WhatsApp</button>
+        </div>
+      </form>
+    </div>
+  </section>
+
+
+  <!-- GALERÍA -->
+  <section id="galeria">
+    <div class="galeria-inner">
+      <div class="galeria-header">
+        <span class="section-label">El ambiente</span>
+        <div class="divider divider--center"></div>
+        <h2>Viví la experiencia</h2>
+      </div>
+
+      <!--
+        ✅ FIX: Las rutas de imagen usaban "../froned/img/" (typo de "frontend").
+        Se corrigen a "img/" asumiendo que las imágenes están en una subcarpeta
+        "img/" junto a este index.html. Ajustá la ruta si tu estructura es distinta.
+      -->
+      <div class="galeria-grid">
+        <div class="galeria-item galeria-item--big"><img src="img/img_galeria/Diseño sin título.png" alt="Galería 1"></div>
+        <div class="galeria-item galeria-item--sm"><img src="img/img_galeria/WhatsApp Image 2026-04-24 at 19.03.47.jpeg" alt="Galería 2"></div>
+        <div class="galeria-item galeria-item--sm"><img src="img/img_galeria/WhatsApp Image 2026-04-24 at 19.03.48 (1).jpeg" alt="Galería 3"></div>
+        <div class="galeria-item galeria-item--sm"><img src="img/img_galeria/Gemini_Generated_Image_5px7225px7225px7.png" alt="Galería 4"></div>
+        <div class="galeria-item galeria-item--sm"><img src="img/img_galeria/WhatsApp Image 2026-04-24 at 19.03.48.jpeg" alt="Galería 5"></div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- CONTACTO -->
+  <section id="contacto">
+    <div class="contacto-inner">
+
+      <div class="contacto-block">
+        <span class="section-label">Ubicación</span>
+        <div class="divider"></div>
+        <h3>Av. del Libertador 1842</h3>
+        <p style="color:var(--muted); margin-top:0.5rem;">Palermo, Buenos Aires</p>
+        <p style="color:var(--muted); margin-top:0.25rem;">Argentina</p>
+      </div>
+
+      <div class="contacto-block">
+        <span class="section-label">Horarios</span>
+        <div class="divider"></div>
+        <div class="contacto-horarios">
+          <div class="horario-row">
+            <span>Lun — Vie</span>
+            <span>12:00 — 00:00</span>
+          </div>
+          <div class="horario-row">
+            <span>Sáb — Dom</span>
+            <span>11:00 — 01:00</span>
+          </div>
+        </div>
+        <span class="open-label">● Abierto hoy</span>
+      </div>
+
+      <div class="contacto-block">
+        <span class="section-label">Contacto</span>
+        <div class="divider"></div>
+        <div class="contacto-links">
+          <a href="tel:+543756565902">+54 3756 565902</a>
+          <a href="mailto:hola@labrasa.com.ar">hola@labrasa.com.ar</a>
+        </div>
+        <div class="social-row">
+          <a href="https://www.instagram.com">Instagram</a>
+          <a href="https://www.facebook.com">Facebook</a>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+
+  <!-- CARRITO FLOTANTE -->
+  <button id="cart-toggle" onclick="toggleCart()" title="Ver pedido">
+    <svg viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
+    <span id="cart-count">0</span>
+  </button>
+
+  <!-- OVERLAY -->
+  <div id="cart-overlay" onclick="toggleCart()"></div>
+
+  <!-- PANEL DEL CARRITO -->
+  <div id="cart-panel">
+    <div class="cart-header">
+      <div class="cart-header-left">
+        <span class="section-label">Tu pedido</span>
+        <div class="cart-title">Carrito</div>
+      </div>
+      <button id="cart-close" onclick="toggleCart()">✕</button>
+    </div>
+
+    <div id="cart-items">
+      <div class="cart-empty" id="cart-empty-msg">
+        <svg viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
+        <p>Tu carrito está vacío</p>
+      </div>
+    </div>
+
+    <div class="cart-footer">
+      <div class="cart-total-row">
+        <span class="cart-total-label">Total</span>
+        <span class="cart-total-amount" id="cart-total"><span>$</span>0</span>
+      </div>
+      <div class="cart-actions">
+        <button class="btn--cart-order" onclick="sendOrder()">Enviar pedido por WhatsApp</button>
+        <button class="btn--cart-clear" onclick="clearCart()">Vaciar carrito</button>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- FOOTER -->
+  <footer>
+    <span class="footer-logo">Sapy' Aite</span>
+    <span class="footer-copy">© 2024 Sapy'Aite — Todos los derechos reservados</span>
+    <div class="footer-links">
+      <a href="#">Privacidad</a>
+      <a href="#">Términos</a>
+    </div>
+  </footer>
+
+  <!--
+    ✅ FIX: La ruta original "../backend/scrip.js" era incorrecta.
+    El JS es código del frontend y debe estar en la misma carpeta que index.html.
+    Si preferís otra ubicación, ajustá la ruta (ej: "js/scrip.js").
+  -->
+  <script src="scrip.js"></script>
+</body>
+</html>

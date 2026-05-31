@@ -1,0 +1,37 @@
+services:
+  - type: web
+    name: sapyaite-api
+    runtime: python
+    repo: https://github.com/lauty112/practicas/tree/andando_1.3/proyecto_final
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn app:app
+    envVars:
+      - key: DB_HOST
+        fromDatabase:
+          name: sapyaite
+          property: host
+      - key: DB_PORT
+        fromDatabase:
+          name: sapyaite
+          property: port
+      - key: DB_NAME
+        fromDatabase:
+          name: sapyaite
+          property: database
+      - key: DB_USER
+        fromDatabase:
+          name: sapyaite
+          property: user
+      - key: DB_PASSWORD
+        fromDatabase:
+          name: sapyaite
+          property: password
+      - key: SECRET_KEY
+        generateValue: true
+      - key: PYTHON_VERSION
+        value: 3.11.0
+
+databases:
+  - name: sapyaite
+    plan: free
