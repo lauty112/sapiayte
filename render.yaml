@@ -2,7 +2,7 @@ services:
   - type: web
     name: sapyaite-api
     runtime: python
-    repo: https://github.com/lauty112/practicas/tree/andando_1.3/proyecto_final
+    repo: https://github.com/lauty112/sapiayte/tree/main
     plan: free
     buildCommand: pip install -r requirements.txt
     startCommand: gunicorn app:app
