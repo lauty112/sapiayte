@@ -2,6 +2,7 @@
 # Ignorar entornos virtuales
 .venv/
 env/
+.env
 venv/
 
 # Archivos de Python generados
