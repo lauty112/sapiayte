@@ -18,7 +18,7 @@ app.secret_key = 'sapyaite_secret_key_2024' #cambiar por una clave segura en pro
 
 app.config.update(
     SESSION_COOKIE_SAMESITE='Lax',  # Evita problemas de cookies en CORS sin requerir HTTPS
-    SESSION_COOKIE_SECURE=True,   # Solo para desarrollo local (sin HTTPS)
+    SESSION_COOKIE_SECURE=False,   # Solo para desarrollo local (sin HTTPS)
     SESSION_COOKIE_HTTPONLY=True, # Protege contra XSS, la cookie no es accesible desde JavaScript
     SESSION_COOKIE_PATH='/' # Asegura que la cookie se envíe en todas las rutas del dominio
 )
