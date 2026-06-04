@@ -33,6 +33,7 @@ coverage.xml
 # Archivos de entorno y secretos
 .env
 .env.*
+backend/.env
 instance/
 secrets.json
 
