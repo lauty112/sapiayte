@@ -151,9 +151,14 @@
 
     <script src="https://unpkg.com/@zxing/library@0.18.6/umd/index.min.js"></script>
     <script>
-        // ✅ FIX: URL centralizada. Antes estaba hardcodeada dentro de la función
-        // procesarQR(), dificultando el mantenimiento al cambiar de entorno.
-        const API_URL = 'https://sapiayte-bz3i.onrender.com/api'; // Cambia a tu URL de backend real
+        // ✅ FIX: URL centralizada y adaptable para entorno local / remoto.
+        const DEFAULT_API_URL = 'https://sapiayte-bz3i.onrender.com/api';
+        const API_URL = window.API_URL || (() => {
+            const host = window.location.hostname;
+            const isLocal = host === 'localhost' || host === '127.0.0.1' || window.location.protocol === 'file:';
+            return isLocal ? 'http://localhost:5000/api' : DEFAULT_API_URL;
+        })();
+        console.log('API_URL =', API_URL);
 
         let codeReader = null;
         let videoInputDevices = [];

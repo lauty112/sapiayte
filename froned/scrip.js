@@ -1,7 +1,13 @@
 // ============================================================
 // CONFIGURACIÓN Y VARIABLES GLOBALES
 // ============================================================
-const API_URL = 'https://sapiayte-bz3i.onrender.com/api';
+const DEFAULT_API_URL = 'https://sapiayte-bz3i.onrender.com/api';
+const API_URL = window.API_URL || (() => {
+    const host = window.location.hostname;
+    const isLocal = host === 'localhost' || host === '127.0.0.1' || window.location.protocol === 'file:';
+    return isLocal ? 'http://localhost:5000/api' : DEFAULT_API_URL;
+})();
+console.log('API_URL =', API_URL);
 
 let mesaActual = null;
 let cart = [];

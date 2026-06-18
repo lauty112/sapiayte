@@ -1,7 +1,11 @@
-// Usamos 'var' o validamos la existencia para evitar el error "Identifier already been declared"
-if (typeof API_URL === 'undefined') {
-    window.API_URL = 'https://sapiayte-bz3i.onrender.com/api'; // Cambia a tu URL de backend real
-}
+// Usamos un URL adaptable para evitar fallos según entorno local o desplegado.
+const DEFAULT_API_URL = 'https://sapiayte-bz3i.onrender.com/api';
+window.API_URL = window.API_URL || (() => {
+    const host = window.location.hostname;
+    const isLocal = host === 'localhost' || host === '127.0.0.1' || window.location.protocol === 'file:';
+    return isLocal ? 'http://localhost:5000/api' : DEFAULT_API_URL;
+})();
+console.log('API_URL =', window.API_URL);
 
 // Declaramos las categorías globalmente de forma segura
 if (typeof categorias === 'undefined') {
