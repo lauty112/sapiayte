@@ -20,7 +20,7 @@ CREATE TABLE empleados (
     rol_id          INTEGER NOT NULL REFERENCES roles(id_roles),
     nombre          VARCHAR(100) NOT NULL,
     email           VARCHAR(100) UNIQUE,
-    telefono        VARCHAR(20)
+    telefono        VARCHAR(20),
     password_hash   VARCHAR(255) NOT NULL,   -- ← AGREGADO
     activo          BOOLEAN DEFAULT TRUE 
 );

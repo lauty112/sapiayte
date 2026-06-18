@@ -18,7 +18,7 @@ app.secret_key = app.config.get('app_secret_key')  # cambiar por una clave segur
 
 app.config.update(
     SESSION_COOKIE_SAMESITE='Lax',  # Evita problemas de cookies en CORS sin requerir HTTPS
-    SESSION_COOKIE_SECURE=False,   # Solo para desarrollo local (sin HTTPS)
+    SESSION_COOKIE_SECURE=True,   # Solo para desarrollo local (sin HTTPS)
     SESSION_COOKIE_HTTPONLY=True, # Protege contra XSS, la cookie no es accesible desde JavaScript
     SESSION_COOKIE_PATH='/' # Asegura que la cookie se envíe en todas las rutas del dominio
 )
