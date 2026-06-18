@@ -1,6 +1,6 @@
 // Usamos 'var' o validamos la existencia para evitar el error "Identifier already been declared"
 if (typeof API_URL === 'undefined') {
-    window.API_URL = 'https://sapiayte-bz3i.onrender.com';
+    window.API_URL = 'https://sapiayte-bz3i.onrender.com/api'; // Cambia a tu URL de backend real
 }
 
 // Declaramos las categorías globalmente de forma segura
