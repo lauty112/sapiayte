@@ -2,7 +2,7 @@ setuptools==73.0.1
 wheel==0.42.0
 flask==2.3.3
 flask-cors==4.0.0
-psycopg2-binary==2.9.9
+psycopg2-binary==2.9.10
 bcrypt==5.0.0
 qrcode==8.2
 pillow==12.2.0
