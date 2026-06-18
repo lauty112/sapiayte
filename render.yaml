@@ -2,6 +2,7 @@ services:
   - type: web
     name: sapyaite-api
     runtime: python
+    pythonVersion: 3.11.0
     repo: https://github.com/lauty112/sapiayte  # ✅ SOLO la URL base, sin /tree/main
     plan: free
     branch: main  # ✅ Especificá la rama explícitamente
