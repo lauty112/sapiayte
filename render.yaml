@@ -5,7 +5,7 @@ services:
     repo: https://github.com/lauty112/sapiayte  # ✅ SOLO la URL base, sin /tree/main
     plan: free
     branch: main  # ✅ Especificá la rama explícitamente
-    buildCommand: pip install -r requirements.txt
+    buildCommand: pip install -r ./requirements.txt
     startCommand: cd backend && gunicorn app:app
     envVars:
       - key: DB_HOST
