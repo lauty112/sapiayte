@@ -33,7 +33,8 @@ CORS(app, supports_credentials=True, origins=[
     "http://localhost:8080",
     "http://127.0.0.1:8080",
     "null",
-    "https://stupendous-arithmetic-d5c98a.netlify.app"   # Necesario cuando se abren archivos HTML directamente con file://
+    "https://stupendous-arithmetic-d5c98a.netlify.app",
+    "https://sapiayte.vercel.app"   # Necesario cuando se abren archivos HTML directamente con file://
 ])
 
 
