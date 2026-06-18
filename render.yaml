@@ -6,7 +6,7 @@ services:
     plan: free
     branch: main  # ✅ Especificá la rama explícitamente
     buildCommand: pip install -r requirements.txt
-    startCommand: gunicorn app:app
+    startCommand: cd backend && gunicorn app:app
     envVars:
       - key: DB_HOST
         fromDatabase:
