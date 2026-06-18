@@ -1,7 +1,7 @@
 // ============================================================
 // CONFIGURACIÓN Y VARIABLES GLOBALES
 // ============================================================
-const API_URL = 'http://localhost:5000/api';
+const API_URL = 'https://sapiayte-bz3i.onrender.com';
 
 let mesaActual = null;
 let cart = [];

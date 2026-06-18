@@ -1,4 +1,4 @@
-const API_URL = 'http://127.0.0.1:5000/api';  // Ajusta si tu backend corre en otro puerto
+const API_URL = 'https://sapiayte-bz3i.onrender.com';  // Ajusta si tu backend corre en otro puerto
 
 document.getElementById('loginForm').addEventListener('submit', async (e) => {
   e.preventDefault();
