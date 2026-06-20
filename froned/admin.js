@@ -1,5 +1,5 @@
 // Usamos un URL adaptable para evitar fallos según entorno local o desplegado.
-const DEFAULT_API_URL = 'https://sapiayte-bz3i.onrender.com/api';
+const DEFAULT_API_URL = 'https://sapiayte-bz3i.onrender.com';
 window.API_URL = window.API_URL || (() => {
     const host = window.location.hostname;
     const isLocal = host === 'localhost' || host === '127.0.0.1' || window.location.protocol === 'file:';
