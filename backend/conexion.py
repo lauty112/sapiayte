@@ -111,14 +111,17 @@ def actualizar_producto(id, data):
     return updated
 
 def eliminar_producto(id):
-    conn = get_connection()
-    cur = conn.cursor()
-    cur.execute("DELETE FROM productos WHERE id_producto = %s", (id,))
-    conn.commit()
-    deleted = cur.rowcount > 0
-    cur.close()
-    conn.close()
-    return deleted
+    try:
+        with get_connection() as conn:
+            with conn.cursor() as cur:
+                cur.execute(
+                    "UPDATE productos SET activo = false WHERE id_producto = %s", (id,)
+                )
+            conn.commit()
+            return True
+    except Exception as e:
+        print(f"Error al desactivar producto: {e}")
+        return False
 
 def get_connection():
     """Abre y devuelve una conexión nueva a PostgreSQL."""
