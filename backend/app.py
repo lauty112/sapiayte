@@ -14,7 +14,7 @@ from conexion import (
 
 
 app = Flask(__name__)
-app.secret_key = app.config.get('app_secret_key')  # cambiar por una clave segura en producción(la clave se usa para firmar las cookies de sesión, no debe ser pública ni predecible)
+app.secret_key = app.config.get('sapyaite_secret_key_2024')  # cambiar por una clave segura en producción(la clave se usa para firmar las cookies de sesión, no debe ser pública ni predecible)
 
 app.config.update(
     SESSION_COOKIE_SAMESITE='Lax',  # Evita problemas de cookies en CORS sin requerir HTTPS
