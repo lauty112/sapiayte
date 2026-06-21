@@ -12,7 +12,6 @@ from conexion import (
     obtener_pedidos_por_mesa,
     obtener_categorias
 )
-import re 
 
 
 app = Flask(__name__)
@@ -27,26 +26,16 @@ app.config.update(
 
 # ✅ FIX: origins="*" con supports_credentials=True es inválido según la spec CORS.
 # El navegador rechaza las respuestas. Se deben declarar los orígenes explícitamente.
-def origen_permitido(origin):
-    # Lista de orígenes permitidos (puede ser un dominio o localhost)
-    if not origin:
-        return False
-    fijos = [
-        "http://localhost:5500",
-        "http://127.0.0.1:5500",
-        "http://localhost:3000",
-        "http://127.0.0.1:3000",
-        "http://localhost:8080",
-        "http://127.0.0.1:8080",
-        "https://sapiayte.vercel.app",
-    ]
-    if origin in fijos:
-        return True
-    if re.match(r'^https://sapiayte-[a-z0-9-]+-lauty\.vercel\.app$', origin):
-        return True
-    return False
-
-CORS(app, supports_credentials=True, origins=origen_permitido)
+CORS(app, supports_credentials=True, origins=[
+    "http://localhost:5500",
+    "http://127.0.0.1:5500",
+    "http://localhost:3000",
+    "http://127.0.0.1:3000",
+    "http://localhost:8080",
+    "http://127.0.0.1:8080",
+    "https://sapiayte.vercel.app",
+    "https://sapiayte-mwxyin5dm-lauty.vercel.app"
+])
 
 
 # ============================================================
