@@ -115,7 +115,7 @@ def eliminar_producto(id):
         with get_connection() as conn:
             with conn.cursor() as cur:
                 cur.execute(
-                    "UPDATE productos SET activo = false WHERE id_producto = %s", (id,)
+                    "UPDATE productos SET disponible = false WHERE id_producto = %s", (id,)
                 )
             conn.commit()
             return True
