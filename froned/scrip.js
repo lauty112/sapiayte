@@ -1,7 +1,7 @@
 // ============================================================
 // CONFIGURACIÓN Y VARIABLES GLOBALES
 // ============================================================
-const DEFAULT_API_URL = 'https://sapiayte-bz3i.onrender.com';
+const DEFAULT_API_URL = 'https://sapiayte-bz3i.onrender.com/api';
 const API_URL = window.API_URL || (() => {
     const host = window.location.hostname;
     const isLocal = host === 'localhost' || host === '127.0.0.1' || window.location.protocol === 'file:';
