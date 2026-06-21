@@ -17,7 +17,7 @@ app = Flask(__name__)
 app.secret_key = app.config.get('sapyaite_secret_key_2024')  # cambiar por una clave segura en producción(la clave se usa para firmar las cookies de sesión, no debe ser pública ni predecible)
 
 app.config.update(
-    SESSION_COOKIE_SAMESITE='Lax',  # Evita problemas de cookies en CORS sin requerir HTTPS
+    SESSION_COOKIE_SAMESITE='None',  # Evita problemas de cookies en CORS sin requerir HTTPS
     SESSION_COOKIE_SECURE=True,   # Solo para desarrollo local (sin HTTPS)
     SESSION_COOKIE_HTTPONLY=True, # Protege contra XSS, la cookie no es accesible desde JavaScript
     SESSION_COOKIE_PATH='/' # Asegura que la cookie se envíe en todas las rutas del dominio
