@@ -34,8 +34,8 @@ CORS(app, supports_credentials=True, origins=[
     "http://localhost:8080",
     "http://127.0.0.1:8080",
     "null",
-    "https://sapiayte.vercel.app",
-    "https://sapiayte-mwxyin5dm-lauty.vercel.app"   # Necesario cuando se abren archivos HTML directamente con file://
+    "sapiayte.vercel.app",
+    "sapiayte-mwxyin5dm-lauty.vercel.app"   # Necesario cuando se abren archivos HTML directamente con file://
 ])
 
 
