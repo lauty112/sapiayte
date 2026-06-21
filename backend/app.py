@@ -42,7 +42,7 @@ def origen_permitido(origin):
     ]
     if origin in fijos:
         return True
-    if re.match(r'^https://sapiayte-[a-z0-9]+-lauty\.vercel\.app$', origin):
+    if re.match(r'^https://sapiayte-[a-z0-9-]+-lauty\.vercel\.app$', origin):
         return True
     return False
 
