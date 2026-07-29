@@ -128,7 +128,7 @@ def eliminar_producto(id):
 
 def get_connection():
     if DATABASE_URL:
-        return psycopg2.connect(DATABASE_URL, sslmode ='requiere')
+        return psycopg2.connect(DATABASE_URL, sslmode ='require')
     else:
         DB_CONFIG ={
             "host": os.getenv("DB_HOST"),
