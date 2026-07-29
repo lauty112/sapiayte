@@ -15,6 +15,8 @@ load_dotenv()
 # Ajusta estos valores según tu entorno.
 # ============================================================
 
+DATABASE_URL = os.getenv("DATABASE_URL")
+
 DB_CONFIG = {
     "host":     os.getenv("DB_HOST"),
     "port":     os.getenv("DB_PORT"),
