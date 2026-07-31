@@ -444,3 +444,43 @@ def obtener_reservas_por_mes(meses: int = 6):
     except Exception as e:
         print(f"[ERROR] obtener_reservas_por_mes: {e}")
         return []
+    
+def obtener_productos_mas_vendidos(limite: int = 5):
+    try:
+        with get_connection() as conn:
+            with conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
+                cur.execute("""
+                    SELECT 
+                        p.nombre,
+                        SUM(dp.cantidad) as total_vendido,
+                        SUM(dp.subtotal) as total_recaudado
+                    FROM detalles_pedido dp
+                    JOIN productos p ON dp.producto_id = p.id_producto
+                    JOIN pedidos ped ON dp.pedido_id = ped.id_pedido
+                    WHERE ped.estado_id = (SELECT id_estado FROM estados_pedido WHERE nombre = 'pagado')
+                    GROUP BY p.id_producto, p.nombre
+                    ORDER BY total_vendido DESC
+                    LIMIT %s
+                """, (limite,))
+                return cur.fetchall()
+    except Exception as e:
+        print(f"[ERROR] obtener_productos_mas_vendidos: {e}")
+        return []
+
+def obtener_estado_pedidos():
+    try:
+        with get_connection() as conn:
+            with conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
+                cur.execute("""
+                    SELECT 
+                        e.nombre as estado,
+                        COUNT(p.id_pedido) as cantidad
+                    FROM pedidos p
+                    JOIN estados_pedido e ON p.estado_id = e.id_estado
+                    GROUP BY e.nombre
+                    ORDER BY cantidad DESC
+                """)
+                return cur.fetchall()
+    except Exception as e:
+        print(f"[ERROR] obtener_estado_pedidos: {e}")
+        return []
