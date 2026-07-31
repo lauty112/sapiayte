@@ -401,3 +401,88 @@ def eliminar_mesa(id_mesa):
     except Exception as e:
         print(f"[ERROR] eliminar_mesa: {e}")
         return False
+# ============================================================
+# INFORMES Y ESTADÍSTICAS
+# ============================================================
+
+def obtener_ventas_por_dia(dias: int = 7):
+    """Devuelve el total de ventas agrupadas por día (últimos N días)."""
+    try:
+        with get_connection() as conn:
+            with conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
+                cur.execute("""
+                    SELECT 
+                        DATE(fecha_creacion) as fecha,
+                        COUNT(*) as total_pedidos,
+                        SUM(total) as total_ventas
+                    FROM pedidos
+                    WHERE estado_id = (SELECT id_estado FROM estados_pedido WHERE nombre = 'pagado')
+                        AND fecha_creacion >= CURRENT_DATE - INTERVAL %s DAY
+                    GROUP BY DATE(fecha_creacion)
+                    ORDER BY fecha ASC
+                """, (dias,))
+                return cur.fetchall()
+    except Exception as e:
+        print(f"[ERROR] obtener_ventas_por_dia: {e}")
+        return []
+
+def obtener_productos_mas_vendidos(limite: int = 5):
+    """Devuelve los productos más vendidos (por cantidad)."""
+    try:
+        with get_connection() as conn:
+            with conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
+                cur.execute("""
+                    SELECT 
+                        p.nombre,
+                        SUM(dp.cantidad) as total_vendido,
+                        SUM(dp.subtotal) as total_recaudado
+                    FROM detalles_pedido dp
+                    JOIN productos p ON dp.producto_id = p.id_producto
+                    JOIN pedidos ped ON dp.pedido_id = ped.id_pedido
+                    WHERE ped.estado_id = (SELECT id_estado FROM estados_pedido WHERE nombre = 'pagado')
+                    GROUP BY p.id_producto, p.nombre
+                    ORDER BY total_vendido DESC
+                    LIMIT %s
+                """, (limite,))
+                return cur.fetchall()
+    except Exception as e:
+        print(f"[ERROR] obtener_productos_mas_vendidos: {e}")
+        return []
+
+def obtener_estado_pedidos():
+    """Devuelve la cantidad de pedidos agrupados por estado."""
+    try:
+        with get_connection() as conn:
+            with conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
+                cur.execute("""
+                    SELECT 
+                        e.nombre as estado,
+                        COUNT(p.id_pedido) as cantidad
+                    FROM pedidos p
+                    JOIN estados_pedido e ON p.estado_id = e.id_estado
+                    GROUP BY e.nombre
+                    ORDER BY cantidad DESC
+                """)
+                return cur.fetchall()
+    except Exception as e:
+        print(f"[ERROR] obtener_estado_pedidos: {e}")
+        return []
+
+def obtener_reservas_por_mes(meses: int = 6):
+    """Devuelve la cantidad de reservas por mes."""
+    try:
+        with get_connection() as conn:
+            with conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
+                cur.execute("""
+                    SELECT 
+                        TO_CHAR(fecha, 'YYYY-MM') as mes,
+                        COUNT(*) as total_reservas
+                    FROM reservas
+                    WHERE fecha >= CURRENT_DATE - INTERVAL %s MONTH
+                    GROUP BY TO_CHAR(fecha, 'YYYY-MM')
+                    ORDER BY mes ASC
+                """, (meses,))
+                return cur.fetchall()
+    except Exception as e:
+        print(f"[ERROR] obtener_reservas_por_mes: {e}")
+        return []

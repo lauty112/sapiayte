@@ -300,5 +300,48 @@ def toggle_mesa_activa(id):
         return jsonify({'success': True})
     return jsonify({'success': False, 'error': 'Error al actualizar'})
 
+# ============================================================
+# INFORMES (solo admin)
+# ============================================================
+
+@app.route('/api/admin/informes/ventas', methods=['GET'])
+@login_required
+@admin_required
+def informes_ventas():
+    """Devuelve ventas por día (últimos 7 días por defecto)."""
+    dias = request.args.get('dias', default=7, type=int)
+    from conexion import obtener_ventas_por_dia
+    data = obtener_ventas_por_dia(dias)
+    return jsonify({'success': True, 'data': data})
+
+@app.route('/api/admin/informes/productos-top', methods=['GET'])
+@login_required
+@admin_required
+def informes_productos_top():
+    """Devuelve los productos más vendidos."""
+    limite = request.args.get('limite', default=5, type=int)
+    from conexion import obtener_productos_mas_vendidos
+    data = obtener_productos_mas_vendidos(limite)
+    return jsonify({'success': True, 'data': data})
+
+@app.route('/api/admin/informes/estados-pedidos', methods=['GET'])
+@login_required
+@admin_required
+def informes_estados_pedidos():
+    """Devuelve la distribución de pedidos por estado."""
+    from conexion import obtener_estado_pedidos
+    data = obtener_estado_pedidos()
+    return jsonify({'success': True, 'data': data})
+
+@app.route('/api/admin/informes/reservas', methods=['GET'])
+@login_required
+@admin_required
+def informes_reservas():
+    """Devuelve reservas por mes."""
+    meses = request.args.get('meses', default=6, type=int)
+    from conexion import obtener_reservas_por_mes
+    data = obtener_reservas_por_mes(meses)
+    return jsonify({'success': True, 'data': data})
+
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5000)
