@@ -25,13 +25,13 @@ app.config.update(
 )
 
 # ✅ FIX: origins="*" con supports_credentials=True es inválido según la spec CORS.
-# El navegador rechaza las respuestas. Se deben declarar los orígenes explícitamente.
+
 CORS(app, supports_credentials=True, origins=[
     "http://localhost:5500",
     "http://127.0.0.1:5500",
     "http://localhost:3000",
     "http://127.0.0.1:3000",
-    "http://localhost:8080",
+    "http://localhost:8081",
     "http://127.0.0.1:8080",
     "https://sapiayte.vercel.app",
     "https://sapiayte-efor8gckb-lauty.vercel.app"
@@ -243,5 +243,62 @@ def eliminar_producto(id):
 # ============================================================
 # MAIN
 # ============================================================
+
+
+@app.route('/api/admin/mesas', methods=['GET'])
+@login_required
+@admin_required
+def listar_mesas():
+    from conexion import obtener_todas_mesas
+    mesas = obtener_todas_mesas()
+    return jsonify({'success': True, 'mesas': mesas})
+
+@app.route('/api/admin/mesas', methods=['POST'])
+@login_required
+@admin_required
+def crear_mesa():
+    data = request.json
+    numero = data.get('numero')
+    qr_token = data.get('qr_token')
+    if not numero:
+        return jsonify({'success': False, 'error': 'Número de mesa requerido'})
+    from conexion import insertar_mesa
+    nueva_id = insertar_mesa(numero, qr_token)
+    if nueva_id:
+        return jsonify({'success': True, 'id': nueva_id})
+    return jsonify({'success': False, 'error': 'Error al crear mesa'})
+
+@app.route('/api/admin/mesas/<int:id>', methods=['PUT'])
+@login_required
+@admin_required
+def actualizar_mesa(id):
+    data = request.json
+    from conexion import actualizar_mesa
+    if actualizar_mesa(id, data):
+        return jsonify({'success': True})
+    return jsonify({'success': False, 'error': 'Error al actualizar'})
+
+@app.route('/api/admin/mesas/<int:id>', methods=['DELETE'])
+@login_required
+@admin_required
+def eliminar_mesa(id):
+    from conexion import eliminar_mesa
+    if eliminar_mesa(id):
+        return jsonify({'success': True})
+    return jsonify({'success': False, 'error': 'Error al eliminar'})
+
+@app.route('/api/admin/mesas/<int:id>/activa', methods=['PATCH'])
+@login_required
+@admin_required
+def toggle_mesa_activa(id):
+    data = request.json
+    activa = data.get('activa')
+    if activa is None:
+        return jsonify({'success': False, 'error': 'Falta el campo activa'})
+    from conexion import actualizar_mesa
+    if actualizar_mesa(id, {'activa': activa}):
+        return jsonify({'success': True})
+    return jsonify({'success': False, 'error': 'Error al actualizar'})
+
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5000)

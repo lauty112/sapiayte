@@ -338,3 +338,66 @@ def crear_reserva(data: dict) -> bool:
         print(f"[ERROR] crear_reserva: {e}")
         return False
 
+# --- GESTIÓN DE MESAS  ---
+
+def obtener_todas_mesas():
+    try:
+        with get_connection() as conn:
+            with conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
+                cur.execute("SELECT id_mesa, numero, qr_token, activa FROM mesas ORDER BY numero")
+                return cur.fetchall()
+    except Exception as e:
+        print(f"[ERROR] obtener_todas_mesas: {e}")
+        return []
+
+def insertar_mesa(numero, qr_token=None):
+    try:
+        with get_connection() as conn:
+            with conn.cursor() as cur:
+                if qr_token:
+                    cur.execute(
+                        "INSERT INTO mesas (numero, qr_token, activa) VALUES (%s, %s, true) RETURNING id_mesa",
+                        (numero, qr_token)
+                    )
+                else:
+                    # Generar token automático si no se proporciona
+                    token = f"mesa_{numero:03d}_{os.urandom(4).hex()}"
+                    cur.execute(
+                        "INSERT INTO mesas (numero, qr_token, activa) VALUES (%s, %s, true) RETURNING id_mesa",
+                        (numero, token)
+                    )
+                return cur.fetchone()[0]
+    except Exception as e:
+        print(f"[ERROR] insertar_mesa: {e}")
+        return None
+
+def actualizar_mesa(id_mesa, data):
+    try:
+        with get_connection() as conn:
+            with conn.cursor() as cur:
+                campos = []
+                valores = []
+                for key in ['numero', 'qr_token', 'activa']:
+                    if key in data:
+                        campos.append(f"{key} = %s")
+                        valores.append(data[key])
+                if not campos:
+                    return False
+                valores.append(id_mesa)
+                cur.execute(f"UPDATE mesas SET {', '.join(campos)} WHERE id_mesa = %s", valores)
+                conn.commit()
+                return cur.rowcount > 0
+    except Exception as e:
+        print(f"[ERROR] actualizar_mesa: {e}")
+        return False
+
+def eliminar_mesa(id_mesa):
+    try:
+        with get_connection() as conn:
+            with conn.cursor() as cur:
+                cur.execute("DELETE FROM mesas WHERE id_mesa = %s", (id_mesa,))
+                conn.commit()
+                return cur.rowcount > 0
+    except Exception as e:
+        print(f"[ERROR] eliminar_mesa: {e}")
+        return False
