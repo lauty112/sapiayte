@@ -417,7 +417,7 @@ def obtener_ventas_por_dia(dias: int = 7):
                         SUM(total) as total_ventas
                     FROM pedidos
                     WHERE estado_id = (SELECT id_estado FROM estados_pedido WHERE nombre = 'pagado')
-                        AND fecha_creacion >= CURRENT_DATE - INTERVAL %s DAY
+                        AND fecha_creacion >= CURRENT_DATE - INTERVAL '%s DAY'
                     GROUP BY DATE(fecha_creacion)
                     ORDER BY fecha ASC
                 """, (dias,))  # ✅ PostgreSQL usa INTERVAL '7 days'
@@ -436,7 +436,7 @@ def obtener_reservas_por_mes(meses: int = 6):
                         TO_CHAR(fecha, 'YYYY-MM') as mes,
                         COUNT(*) as total_reservas
                     FROM reservas
-                    WHERE fecha >= CURRENT_DATE - INTERVAL %s MONTH
+                    WHERE fecha >= CURRENT_DATE - INTERVAL '%s MONTH'
                     GROUP BY TO_CHAR(fecha, 'YYYY-MM')
                     ORDER BY mes ASC
                 """, (meses,))  # ✅ PostgreSQL usa INTERVAL '6 months'
