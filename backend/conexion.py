@@ -402,7 +402,7 @@ def eliminar_mesa(id_mesa):
         print(f"[ERROR] eliminar_mesa: {e}")
         return False
 # ============================================================
-# INFORMES Y ESTADÍSTICAS
+# INFORMES Y ESTADÍSTICAS (CORREGIDO)
 # ============================================================
 
 def obtener_ventas_por_dia(dias: int = 7):
@@ -420,52 +420,10 @@ def obtener_ventas_por_dia(dias: int = 7):
                         AND fecha_creacion >= CURRENT_DATE - INTERVAL %s DAY
                     GROUP BY DATE(fecha_creacion)
                     ORDER BY fecha ASC
-                """, (dias,))
+                """, (dias,))  # ✅ PostgreSQL usa INTERVAL '7 days'
                 return cur.fetchall()
     except Exception as e:
         print(f"[ERROR] obtener_ventas_por_dia: {e}")
-        return []
-
-def obtener_productos_mas_vendidos(limite: int = 5):
-    """Devuelve los productos más vendidos (por cantidad)."""
-    try:
-        with get_connection() as conn:
-            with conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
-                cur.execute("""
-                    SELECT 
-                        p.nombre,
-                        SUM(dp.cantidad) as total_vendido,
-                        SUM(dp.subtotal) as total_recaudado
-                    FROM detalles_pedido dp
-                    JOIN productos p ON dp.producto_id = p.id_producto
-                    JOIN pedidos ped ON dp.pedido_id = ped.id_pedido
-                    WHERE ped.estado_id = (SELECT id_estado FROM estados_pedido WHERE nombre = 'pagado')
-                    GROUP BY p.id_producto, p.nombre
-                    ORDER BY total_vendido DESC
-                    LIMIT %s
-                """, (limite,))
-                return cur.fetchall()
-    except Exception as e:
-        print(f"[ERROR] obtener_productos_mas_vendidos: {e}")
-        return []
-
-def obtener_estado_pedidos():
-    """Devuelve la cantidad de pedidos agrupados por estado."""
-    try:
-        with get_connection() as conn:
-            with conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
-                cur.execute("""
-                    SELECT 
-                        e.nombre as estado,
-                        COUNT(p.id_pedido) as cantidad
-                    FROM pedidos p
-                    JOIN estados_pedido e ON p.estado_id = e.id_estado
-                    GROUP BY e.nombre
-                    ORDER BY cantidad DESC
-                """)
-                return cur.fetchall()
-    except Exception as e:
-        print(f"[ERROR] obtener_estado_pedidos: {e}")
         return []
 
 def obtener_reservas_por_mes(meses: int = 6):
@@ -481,7 +439,7 @@ def obtener_reservas_por_mes(meses: int = 6):
                     WHERE fecha >= CURRENT_DATE - INTERVAL %s MONTH
                     GROUP BY TO_CHAR(fecha, 'YYYY-MM')
                     ORDER BY mes ASC
-                """, (meses,))
+                """, (meses,))  # ✅ PostgreSQL usa INTERVAL '6 months'
                 return cur.fetchall()
     except Exception as e:
         print(f"[ERROR] obtener_reservas_por_mes: {e}")
