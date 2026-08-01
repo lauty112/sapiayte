@@ -268,7 +268,7 @@ def crear_pedido(mesa_id: int, items: list, observaciones: str = '') -> int | No
                     VALUES (%s, 1, %s)
                     RETURNING id_pedido
                 """, (mesa_id, observaciones))
-                pedido_id = cur.fetchone()[0]
+                pedido_id = cur.fetchone()['id_pedido']
 
                 total = 0
                 for item in items:
