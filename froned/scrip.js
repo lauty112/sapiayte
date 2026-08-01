@@ -1,14 +1,13 @@
 // ============================================================
 // CONFIGURACIÓN Y VARIABLES GLOBALES
 // ============================================================
-const API_BASE = window.API_URL || 'https://sapiayte-bz3i.onrender.com/api';
 const DEFAULT_API_URL = 'https://sapiayte-bz3i.onrender.com/api';
 const API_URL = window.API_URL || (() => {
     const host = window.location.hostname;
     const isLocal = host === 'localhost' || host === '127.0.0.1' || window.location.protocol === 'file:';
     return isLocal ? 'http://localhost:5000/api' : DEFAULT_API_URL;
 })();
-console.log('API_BASE =', API_BASE);
+console.log('API_URL =', API_URL);
 
 let mesaActual = null;
 let cart = [];
@@ -277,7 +276,7 @@ async function sendOrder() {
     observaciones: ''
   };
   try {
-    const response = await fetch(`${API_BASE}/pedido/crear`, {
+    const response = await fetch(`${API_URL}/pedido/crear`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       credentials: 'include',
@@ -360,7 +359,7 @@ function initReservasForm() {
         mensaje,
         mesa_id: mesaActual ? (mesaActual.id || mesaActual.id_mesa) : null
       };
-      await fetch(`${API_BASE}/reserva/crear`, {
+      await fetch(`${API_URL}/reserva/crear`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
@@ -384,7 +383,7 @@ function initReservasForm() {
 // ============================================================
 async function cargarMenuDesdeBD() {
   try {
-    const res = await fetch(`${API_BASE}/menu`);
+    const res = await fetch(`${API_URL}/menu`);
     const data = await res.json();
     if (data.success) {
       menuDataGlobal = data.menu;

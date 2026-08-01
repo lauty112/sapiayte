@@ -21,9 +21,14 @@ app.secret_key = os.environ.get('SECRET_KEY') or os.environ.get('app_secret_key'
 if not app.secret_key:
     raise RuntimeError("Falta definir SECRET_KEY en las variables de entorno (backend/.env en local, Render en producción)")
 
+FLASK_ENV = os.environ.get('FLASK_ENV', 'production')
+
 app.config.update(
-    SESSION_COOKIE_SAMESITE='None',  # Evita problemas de cookies en CORS sin requerir HTTPS
-    SESSION_COOKIE_SECURE=True,   # Solo para desarrollo local (sin HTTPS)
+    # En producción (frontend y backend en sitios distintos) la cookie necesita
+    # SameSite=None + Secure para funcionar sobre HTTPS. En desarrollo local
+    # (HTTP, localhost) se usan Lax + sin Secure para que la cookie no se descarte.
+    SESSION_COOKIE_SAMESITE='None' if FLASK_ENV == 'production' else 'Lax',
+    SESSION_COOKIE_SECURE=(FLASK_ENV == 'production'),
     SESSION_COOKIE_HTTPONLY=True, # Protege contra XSS, la cookie no es accesible desde JavaScript
     SESSION_COOKIE_PATH='/' # Asegura que la cookie se envíe en todas las rutas del dominio
 )
@@ -170,7 +175,7 @@ def admin_required(f):
 # --- Login ---
 @app.route('/api/login', methods=['POST'])
 def login():
-    data = request.json
+    data = request.json or {}
     email = data.get('email')
     password = data.get('password')
     
@@ -218,12 +223,17 @@ def get_categorias():
 @login_required
 @admin_required
 def crear_producto():
-    data = request.json
+    data = request.json or {}
     required = ['nombre', 'precio', 'categoria_id']
     if not all(k in data for k in required):
         return jsonify({'success': False, 'error': 'Faltan campos obligatorios'})
-    
-    if float(data['precio']) <= 0:
+
+    try:
+        precio = float(data['precio'])
+    except (TypeError, ValueError):
+        return jsonify({'success': False, 'error': 'El precio debe ser un número'})
+
+    if precio <= 0:
         return jsonify({'success': False, 'error': 'El precio no puede ser negativo'})
 
     from conexion import crear_producto
@@ -236,7 +246,7 @@ def crear_producto():
 @login_required
 @admin_required
 def actualizar_producto(id):
-    data = request.json
+    data = request.json or {}
     from conexion import actualizar_producto
     if actualizar_producto(id, data):
         return jsonify({'success': True})
@@ -267,7 +277,7 @@ def listar_mesas():
 @login_required
 @admin_required
 def crear_mesa():
-    data = request.json
+    data = request.json or {}
     numero = data.get('numero')
     qr_token = data.get('qr_token')
     if not numero:
@@ -282,7 +292,7 @@ def crear_mesa():
 @login_required
 @admin_required
 def actualizar_mesa(id):
-    data = request.json
+    data = request.json or {}
     from conexion import actualizar_mesa
     if actualizar_mesa(id, data):
         return jsonify({'success': True})
@@ -301,7 +311,7 @@ def eliminar_mesa(id):
 @login_required
 @admin_required
 def toggle_mesa_activa(id):
-    data = request.json
+    data = request.json or {}
     activa = data.get('activa')
     if activa is None:
         return jsonify({'success': False, 'error': 'Falta el campo activa'})
