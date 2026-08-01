@@ -23,7 +23,8 @@ DB_CONFIG = {
     "dbname":   os.getenv("DB_NAME"),
     "user":     os.getenv("DB_USER"),
     "password": os.getenv("DB_PASSWORD"),
-    "sslmode": "require"
+    "sslmode": "require",
+    "DATABASE_URL": os.getenv("DATABASE_URL")
 }
 
 def obtener_categorias():
@@ -38,19 +39,17 @@ def obtener_categorias():
         return []
 
 def obtener_empleado_por_email(email):
-    try:
-        with get_connection() as conn:
-            with conn.cursor() as cur:
-                cur.execute("""
-                    SELECT e.id_empleado, e.nombre, e.email, e.password_hash, r.nombre as rol_nombre
-                    FROM empleados e
-                    JOIN roles r ON e.rol_id = r.id_roles
-                    WHERE e.email = %s AND e.activo = true
-                """, (email,))
-                empleado = cur.fetchone()
-    except Exception as e:
-        print(f"[ERROR] obtener_empleado_por_email: {e}")
-        return None
+    conn = get_connection()
+    cur = conn.cursor()
+    cur.execute("""
+        SELECT e.id_empleado, e.nombre, e.email, e.password_hash, r.nombre as rol_nombre
+        FROM empleados e
+        JOIN roles r ON e.rol_id = r.id_roles
+        WHERE e.email = %s AND e.activo = true
+    """, (email,))
+    empleado = cur.fetchone()
+    cur.close()
+    conn.close()
     if empleado:
         return {
             'id_empleado': empleado[0],
@@ -62,65 +61,58 @@ def obtener_empleado_por_email(email):
     return None
 
 def obtener_todos_productos():
-    try:
-        with get_connection() as conn:
-            with conn.cursor() as cur:
-                cur.execute("""
-                    SELECT p.id_producto, p.nombre, p.descripcion, p.precio, p.disponible, p.imagen_url, c.id_categoria, c.nombre as categoria_nombre
-                    FROM productos p
-                    JOIN categorias c ON p.categoria_id = c.id_categoria
-                    ORDER BY c.orden, p.nombre
-                """)
-                productos = cur.fetchall()
-        return [{
-            'id': row[0],
-            'nombre': row[1],
-            'descripcion': row[2],
-            'precio': float(row[3]),
-            'disponible': row[4],
-            'imagen_url': row[5],
-            'categoria_id': row[6],
-            'categoria_nombre': row[7]
-        } for row in productos]
-    except Exception as e:
-        print(f"[ERROR] obtener_todos_productos: {e}")
-        return []
+    conn = get_connection()
+    cur = conn.cursor()
+    cur.execute("""
+        SELECT p.id_producto, p.nombre, p.descripcion, p.precio, p.disponible, p.imagen_url, c.id_categoria, c.nombre as categoria_nombre
+        FROM productos p
+        JOIN categorias c ON p.categoria_id = c.id_categoria
+        ORDER BY c.orden, p.nombre
+    """)
+    productos = cur.fetchall()
+    cur.close()
+    conn.close()
+    return [{
+        'id': row[0],
+        'nombre': row[1],
+        'descripcion': row[2],
+        'precio': float(row[3]),
+        'disponible': row[4],
+        'imagen_url': row[5],
+        'categoria_id': row[6],
+        'categoria_nombre': row[7]
+    } for row in productos]
 
 def crear_producto(data):
-    try:
-        with get_connection() as conn:
-            with conn.cursor() as cur:
-                cur.execute("""
-                    INSERT INTO productos (categoria_id, nombre, descripcion, precio, disponible, imagen_url)
-                    VALUES (%s, %s, %s, %s, %s, %s)
-                    RETURNING id_producto
-                """, (data['categoria_id'], data['nombre'], data.get('descripcion'), data['precio'], data.get('disponible', True), data.get('imagen_url')))
-                new_id = cur.fetchone()[0]
-                conn.commit()
-                return new_id
-    except Exception as e:
-        print(f"[ERROR] crear_producto: {e}")
-        return None
+    conn = get_connection()
+    cur = conn.cursor()
+    cur.execute("""
+        INSERT INTO productos (categoria_id, nombre, descripcion, precio, disponible, imagen_url)
+        VALUES (%s, %s, %s, %s, %s, %s)
+        RETURNING id_producto
+    """, (data['categoria_id'], data['nombre'], data.get('descripcion'), data['precio'], data.get('disponible', True), data.get('imagen_url')))
+    new_id = cur.fetchone()[0]
+    conn.commit()
+    cur.close()
+    conn.close()
+    return new_id
 
 def actualizar_producto(id, data):
-    try:
-        with get_connection() as conn:
-            with conn.cursor() as cur:
-                campos = []
-                valores = []
-                for key in ['categoria_id', 'nombre', 'descripcion', 'precio', 'disponible', 'imagen_url']:
-                    if key in data:
-                        campos.append(f"{key} = %s")
-                        valores.append(data[key])
-                if not campos:
-                    return False
-                valores.append(id)
-                cur.execute(f"UPDATE productos SET {', '.join(campos)} WHERE id_producto = %s", valores)
-                conn.commit()
-                return cur.rowcount > 0
-    except Exception as e:
-        print(f"[ERROR] actualizar_producto: {e}")
-        return False
+    conn = get_connection()
+    cur = conn.cursor()
+    campos = []
+    valores = []
+    for key in ['categoria_id', 'nombre', 'descripcion', 'precio', 'disponible', 'imagen_url']:
+        if key in data:
+            campos.append(f"{key} = %s")
+            valores.append(data[key])
+    valores.append(id)
+    cur.execute(f"UPDATE productos SET {', '.join(campos)} WHERE id_producto = %s", valores)
+    conn.commit()
+    updated = cur.rowcount > 0
+    cur.close()
+    conn.close()
+    return updated
 
 def eliminar_producto(id):
     try:
@@ -136,13 +128,19 @@ def eliminar_producto(id):
         return False
 
 def get_connection():
-    """Abre y devuelve una conexión nueva a PostgreSQL."""
     if DATABASE_URL:
-        url = DATABASE_URL
-        if 'sslmode' not in url:
-            sep = '&' if '?' in url else '?'
-            url = f"{url}{sep}sslmode=require"
-        return psycopg2.connect(url)
+        return psycopg2.connect(DATABASE_URL, sslmode ='require')
+    else:
+        DB_CONFIG ={
+            "host": os.getenv("DB_HOST"),
+            "port": os.getenv("DB_PORT"),
+            "dbname": os.getenv("DB_NAME"),
+            "user": os.getenv("DB_USER"),
+            "password": os.getenv("DB_PASSWORD"),
+            "sslmode": "require"
+        }
+
+    """Abre y devuelve una conexión nueva a PostgreSQL."""
     return psycopg2.connect(**DB_CONFIG)
 
 

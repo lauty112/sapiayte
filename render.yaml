@@ -5,7 +5,7 @@ services:
     pythonVersion: 3.11.0
     repo: https://github.com/lauty112/sapiayte  # ✅ SOLO la URL base, sin /tree/main
     plan: free
-    branch: proyecto_final  # ✅ Especificá la rama explícitamente
+    branch: main  # ✅ Especificá la rama explícitamente
     buildCommand: "pip install -r ./requirements.txt"
     startCommand: "gunicorn wsgi:app"
     envVars:
@@ -31,8 +31,6 @@ services:
           property: password
       - key: SECRET_KEY
         generateValue: true
-      - key: FLASK_ENV
-        value: production
       - key: PYTHON_VERSION
         value: "3.11.0"
 
