@@ -445,23 +445,35 @@ def obtener_reservas_por_mes(meses: int = 6):
         print(f"[ERROR] obtener_reservas_por_mes: {e}")
         return []
     
-def obtener_productos_mas_vendidos(limite: int = 5):
+def obtener_productos_mas_vendidos(limite: int = 5, categoria_id: int = None):
     try:
         with get_connection() as conn:
             with conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
-                cur.execute("""
+                query = """
                     SELECT 
                         p.nombre,
-                        SUM(dp.cantidad) as total_vendido,
-                        SUM(dp.subtotal) as total_recaudado
+                        p.id_producto,
+                        COALESCE(SUM(dp.cantidad), 0) as total_vendido,
+                        COALESCE(SUM(dp.subtotal), 0) as total_recaudado
                     FROM detalles_pedido dp
                     JOIN productos p ON dp.producto_id = p.id_producto
                     JOIN pedidos ped ON dp.pedido_id = ped.id_pedido
-                    WHERE ped.estado_id = (SELECT id_estado FROM estados_pedido WHERE nombre = 'pagado')
+                    WHERE ped.estado_id IN (
+                        SELECT id_estado FROM estados_pedido 
+                        WHERE nombre ILIKE 'pagado' OR nombre ILIKE 'entregado'
+                    )
+                """
+                params = []
+                if categoria_id:
+                    query += " AND p.categoria_id = %s"
+                    params.append(categoria_id)
+                query += """
                     GROUP BY p.id_producto, p.nombre
                     ORDER BY total_vendido DESC
                     LIMIT %s
-                """, (limite,))
+                """
+                params.append(limite)
+                cur.execute(query, params)
                 return cur.fetchall()
     except Exception as e:
         print(f"[ERROR] obtener_productos_mas_vendidos: {e}")
@@ -483,4 +495,4 @@ def obtener_estado_pedidos():
                 return cur.fetchall()
     except Exception as e:
         print(f"[ERROR] obtener_estado_pedidos: {e}")
-        return []
+        return []  

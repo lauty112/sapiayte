@@ -318,10 +318,10 @@ def informes_ventas():
 @login_required
 @admin_required
 def informes_productos_top():
-    """Devuelve los productos más vendidos."""
     limite = request.args.get('limite', default=5, type=int)
+    categoria_id = request.args.get('categoria_id', default=None, type=int)
     from conexion import obtener_productos_mas_vendidos
-    data = obtener_productos_mas_vendidos(limite)
+    data = obtener_productos_mas_vendidos(limite, categoria_id)
     return jsonify({'success': True, 'data': data})
 
 @app.route('/api/admin/informes/estados-pedidos', methods=['GET'])
