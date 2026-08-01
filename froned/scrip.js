@@ -269,10 +269,10 @@ async function sendOrder() {
   }
   const pedidoData = {
     mesa_id: mesa.id || mesa.id_mesa,
+    mesa_token: localStorage.getItem('mesa_token') || '',
     items: cart.map(item => ({
       producto_id: item.product_id,
-      cantidad: item.qty,
-      precio: item.price
+      cantidad: item.qty
     })),
     observaciones: ''
   };

@@ -10,12 +10,16 @@ from conexion import (
     crear_reserva,
     actualizar_estado_pedido,
     obtener_pedidos_por_mesa,
-    obtener_categorias
+    obtener_categorias,
+    validar_mesa,
+    PedidoError
 )
 
 
 app = Flask(__name__)
-app.secret_key = os.environ.get('sapyaite_secret_key_2024')  # cambiar por una clave segura en producción(la clave se usa para firmar las cookies de sesión, no debe ser pública ni predecible)
+app.secret_key = os.environ.get('SECRET_KEY') or os.environ.get('app_secret_key')
+if not app.secret_key:
+    raise RuntimeError("Falta definir SECRET_KEY en las variables de entorno (backend/.env en local, Render en producción)")
 
 app.config.update(
     SESSION_COOKIE_SAMESITE='None',  # Evita problemas de cookies en CORS sin requerir HTTPS
@@ -105,12 +109,14 @@ def crear_nuevo_pedido():
     """Registra un nuevo pedido para la mesa."""
     data = request.json or {}
 
-    # FIX: lee mesa_id primero del body (enviado desde localStorage por el frontend).
-    # La sesión Flask falla cuando el navegador no envía la cookie entre orígenes distintos.
+    # La mesa se valida contra la DB usando el token del QR (o la sesión).
     mesa_id = data.get('mesa_id') or session.get('mesa_id')
-
     if not mesa_id:
         return jsonify({'success': False, 'error': 'No hay mesa seleccionada. Escaneá el QR nuevamente.'})
+
+    mesa = validar_mesa(mesa_id, data.get('mesa_token'))
+    if not mesa:
+        return jsonify({'success': False, 'error': 'Mesa no válida. Escaneá el QR nuevamente.'})
 
     items         = data.get('items', [])
     observaciones = data.get('observaciones', '')
@@ -118,7 +124,11 @@ def crear_nuevo_pedido():
     if not items:
         return jsonify({'success': False, 'error': 'El pedido está vacío'})
 
-    pedido_id = crear_pedido(mesa_id, items, observaciones)
+    try:
+        pedido_id = crear_pedido(mesa_id, items, observaciones)
+    except PedidoError as e:
+        return jsonify({'success': False, 'error': str(e)})
+
     if pedido_id:
         return jsonify({'success': True, 'pedido_id': pedido_id})
 

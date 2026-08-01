@@ -23,7 +23,8 @@ DB_CONFIG = {
     "dbname":   os.getenv("DB_NAME"),
     "user":     os.getenv("DB_USER"),
     "password": os.getenv("DB_PASSWORD"),
-    "sslmode": "require"
+    "sslmode": "require",
+    "DATABASE_URL": os.getenv("DATABASE_URL")
 }
 
 def obtener_categorias():
@@ -216,16 +217,51 @@ def obtener_mesa_por_token(token: str) -> dict | None:
 # PEDIDOS
 # ============================================================
 
+class PedidoError(Exception):
+    """Error de validación en un pedido que impide crearlo."""
+    pass
+
+
+def validar_mesa(mesa_id: int, qr_token: str = None) -> dict | None:
+    """
+    Verifica que la mesa exista y esté activa.
+    Si se pasa qr_token, valida además que coincida con la mesa.
+    Retorna {id_mesa, numero} o None si no es válida.
+    """
+    try:
+        with get_connection() as conn:
+            with conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
+                if qr_token:
+                    cur.execute("""
+                        SELECT id_mesa, numero
+                        FROM mesas
+                        WHERE id_mesa = %s AND qr_token = %s AND activa = TRUE
+                    """, (mesa_id, qr_token))
+                else:
+                    cur.execute("""
+                        SELECT id_mesa, numero
+                        FROM mesas
+                        WHERE id_mesa = %s AND activa = TRUE
+                    """, (mesa_id,))
+                row = cur.fetchone()
+                return dict(row) if row else None
+    except Exception as e:
+        print(f"[ERROR] validar_mesa: {e}")
+        return None
+
+
 def crear_pedido(mesa_id: int, items: list, observaciones: str = '') -> int | None:
     """
     Inserta un pedido y sus detalles en la base de datos.
     Retorna el id_pedido creado, o None si hubo un error.
 
-    items: lista de dicts { producto_id, cantidad, precio }
+    items: lista de dicts { producto_id, cantidad }.
+    El precio se toma de la base de datos, nunca del cliente.
+    Lanza PedidoError ante ítems o cantidades inválidas.
     """
     try:
         with get_connection() as conn:
-            with conn.cursor() as cur:
+            with conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
                 # Estado inicial: 'pendiente' (id=1 según el INSERT del SQL)
                 cur.execute("""
                     INSERT INTO pedidos (mesa_id, estado_id, observaciones)
@@ -236,13 +272,34 @@ def crear_pedido(mesa_id: int, items: list, observaciones: str = '') -> int | No
 
                 total = 0
                 for item in items:
-                    subtotal = item['precio'] * item['cantidad']
-                    total   += subtotal
+                    try:
+                        producto_id = int(item['producto_id'])
+                        cantidad = int(item['cantidad'])
+                    except (KeyError, TypeError, ValueError):
+                        raise PedidoError('Ítem del pedido inválido')
+
+                    if cantidad <= 0 or cantidad > 99:
+                        raise PedidoError('Cantidad inválida por ítem')
+
+                    # Precio y disponibilidad reales desde la DB
+                    cur.execute("""
+                        SELECT precio, disponible FROM productos WHERE id_producto = %s
+                    """, (producto_id,))
+                    producto = cur.fetchone()
+                    if not producto:
+                        raise PedidoError('Producto no encontrado')
+                    if not producto['disponible']:
+                        raise PedidoError('Producto no disponible')
+
+                    precio = float(producto['precio'])
+                    subtotal = precio * cantidad
+                    total += subtotal
+
                     cur.execute("""
                         INSERT INTO detalles_pedido
                             (pedido_id, producto_id, cantidad, precio_unitario, subtotal)
                         VALUES (%s, %s, %s, %s, %s)
-                    """, (pedido_id, item['producto_id'], item['cantidad'], item['precio'], subtotal))
+                    """, (pedido_id, producto_id, cantidad, precio, subtotal))
 
                 # Actualizar el total del pedido
                 cur.execute("""
@@ -251,6 +308,8 @@ def crear_pedido(mesa_id: int, items: list, observaciones: str = '') -> int | No
 
                 conn.commit()
                 return pedido_id
+    except PedidoError:
+        raise
     except Exception as e:
         print(f"[ERROR] crear_pedido: {e}")
         return None

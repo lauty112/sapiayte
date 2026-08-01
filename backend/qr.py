@@ -12,7 +12,7 @@ def generar_qr_para_mesas():
     
     for mesa in mesas:
         # Generar URL con el token
-        url = f"https://sapiayte.vercel.app/qr-scanner.html?token={mesa[2]}"
+        url = f"https://sapiayte.vercel.app/qr-scaner.html?token={mesa[2]}"
         
         qr = qrcode.make(url)
         qr.save(f"qr_mesa_{mesa[1]}.png")
