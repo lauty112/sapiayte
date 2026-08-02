@@ -440,6 +440,9 @@ def obtener_todos_pedidos() -> list:
                     ORDER BY p.fecha_creacion DESC
                 """)
                 pedidos = [dict(row) for row in cur.fetchall()]
+                for p in pedidos:
+                    if p.get('total') is not None:
+                        p['total'] = float(p['total'])
     except Exception as e:
         print(f"[ERROR] obtener_todos_pedidos: {e}")
     return pedidos
