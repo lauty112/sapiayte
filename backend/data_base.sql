@@ -143,7 +143,13 @@ INSERT INTO productos (categoria_id, nombre, descripcion, precio) VALUES
     (4, 'Hamburguesa simple al plato', 'Medallón de carne 127gr y queso muzzarella', 8200),
     (4, 'Hamburguesa completa al plato', 'Medallón, queso, lechuga, tomate y huevo', 9800),
     (4, 'Milanesa al plato', 'Milanesa de carne, lechuga, tomate y huevo', 10800),
-    (4, 'Entrañas al plato', 'Entrañas de cerdo, lechuga, tomate y huevo', 10200);
+    (4, 'Entrañas al plato', 'Entrañas de cerdo, lechuga, tomate y huevo', 10200),
+    (5, 'Pizza muzzarella', 'Muzzarella, con salsa de tomate', 9500),
+    (5, 'Pizza napolitana', 'Muzzarella, rodajas de tomate y ajo', 10200),
+    (5, 'Pizza fugazzeta', 'Muzzarella y cebolla', 9800),
+    (5, 'Pizza calabresa', 'Muzzarella y salame', 10800),
+    (5, 'Pizza jamón y morrones', 'Muzzarella, jamón y morrones', 11200),
+    (5, 'Pizza especial', 'Muzzarella, jamón, morrones y huevo', 11500);
 
 -- Roles
 INSERT INTO roles (nombre) VALUES ('admin'), ('mozo'), ('cocina');
@@ -154,4 +160,9 @@ INSERT INTO mesas (numero, qr_token, activa) VALUES
     (2, 'mesa_002_token_abc', true),
     (3, 'mesa_003_token_def', true),
     (4, 'mesa_004_token_ghi', true),
-    (5, 'mesa_005_token_jkl', true);
+    (5, 'mesa_005_token_jkl', true),
+    (6, 'mesa_006_token_mno', true),
+    (7, 'mesa_007_token_pqr', true),
+    (8, 'mesa_008_token_stu', true),
+    (9, 'mesa_009_token_vwx', true),
+    (10, 'mesa_010_token_yza', true);
