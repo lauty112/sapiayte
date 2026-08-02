@@ -397,6 +397,51 @@ def crear_reserva(data: dict) -> bool:
         print(f"[ERROR] crear_reserva: {e}")
         return False
 
+def obtener_mesas_disponibles(fecha: str, hora: str) -> list:
+    """
+    Devuelve todas las mesas activas con su disponibilidad para reservar.
+
+    Una mesa se considera NO disponible si:
+      - Está inactiva (activa = false)
+      - Ya tiene una reserva el mismo día con horario que se superpone (±2 horas)
+      - Tiene pedidos activos (estado distinto de 'cancelado'/'pagado') ese día
+
+    fecha: 'YYYY-MM-DD' | hora: 'HH:MM' (o 'HH:MM:SS').
+    Retorna lista de {id_mesa, numero, disponible}.
+    """
+    try:
+        with get_connection() as conn:
+            with conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
+                cur.execute("""
+                    SELECT
+                        m.id_mesa,
+                        m.numero,
+                        (m.activa
+                            AND NOT EXISTS (
+                                SELECT 1
+                                FROM reservas r
+                                WHERE r.mesa_id = m.id_mesa
+                                  AND r.fecha = %s
+                                  AND r.hora BETWEEN %s::time - INTERVAL '2 hours'
+                                                 AND %s::time + INTERVAL '2 hours'
+                            )
+                            AND NOT EXISTS (
+                                SELECT 1
+                                FROM pedidos p
+                                JOIN estados_pedido e ON p.estado_id = e.id_estado
+                                WHERE p.mesa_id = m.id_mesa
+                                  AND p.fecha_creacion::date = %s
+                                  AND e.nombre NOT IN ('cancelado', 'pagado')
+                            )
+                        ) AS disponible
+                    FROM mesas m
+                    ORDER BY m.numero
+                """, (fecha, hora, hora, fecha))
+                return [dict(row) for row in cur.fetchall()]
+    except Exception as e:
+        print(f"[ERROR] obtener_mesas_disponibles: {e}")
+        return []
+
 # --- GESTIÓN DE MESAS  ---
 
 def obtener_todas_mesas():

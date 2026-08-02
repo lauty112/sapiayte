@@ -3,11 +3,13 @@ from flask_cors import CORS
 from functools import wraps
 import os
 import bcrypt
+from datetime import date
 from conexion import (
     obtener_productos_por_categoria,
     crear_pedido,
     obtener_mesa_por_token,
     crear_reserva,
+    obtener_mesas_disponibles,
     actualizar_estado_pedido,
     obtener_pedidos_por_mesa,
     obtener_categorias,
@@ -150,6 +152,25 @@ def nueva_reserva():
         return jsonify({'success': True, 'message': 'Reserva creada exitosamente'})
 
     return jsonify({'success': False, 'error': 'Error interno al crear la reserva'})
+
+
+@app.route('/api/mesas/disponibles', methods=['GET'])
+def get_mesas_disponibles():
+    """Devuelve las mesas y su disponibilidad para reservar en una fecha/hora."""
+    fecha = request.args.get('fecha', '').strip()
+    hora  = request.args.get('hora', '').strip() or '20:00'
+
+    if not fecha:
+        return jsonify({'success': False, 'error': 'Falta el parámetro fecha (YYYY-MM-DD)'})
+
+    try:
+        date.fromisoformat(fecha)
+    except ValueError:
+        return jsonify({'success': False, 'error': 'Fecha inválida (formato YYYY-MM-DD)'})
+
+    mesas = obtener_mesas_disponibles(fecha, hora)
+    return jsonify({'success': True, 'mesas': mesas})
+
 
 def login_required(f):
     @wraps(f)
