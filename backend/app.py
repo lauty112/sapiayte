@@ -348,6 +348,52 @@ def toggle_mesa_activa(id):
     return jsonify({'success': False, 'error': 'Error al actualizar'})
 
 # ============================================================
+# PEDIDOS (solo admin)
+# ============================================================
+
+ESTADOS_PEDIDO_VALIDOS = {
+    'pendiente',
+    'en_preparacion',
+    'listo',
+    'entregado',
+    'cancelado',
+    'pagado',
+}
+
+@app.route('/api/admin/pedidos', methods=['GET'])
+@login_required
+@admin_required
+def listar_pedidos():
+    from conexion import obtener_todos_pedidos
+    pedidos = obtener_todos_pedidos()
+    return jsonify({'success': True, 'pedidos': pedidos})
+
+
+@app.route('/api/admin/pedidos/estados', methods=['GET'])
+@login_required
+@admin_required
+def listar_estados_pedido():
+    from conexion import obtener_estados_pedido_all
+    estados = obtener_estados_pedido_all()
+    return jsonify({'success': True, 'estados': estados})
+
+
+@app.route('/api/admin/pedidos/<int:pedido_id>/estado', methods=['PATCH'])
+@login_required
+@admin_required
+def cambiar_estado_pedido(pedido_id):
+    data = request.json or {}
+    nuevo_estado = (data.get('estado') or '').strip()
+
+    if nuevo_estado not in ESTADOS_PEDIDO_VALIDOS:
+        return jsonify({'success': False, 'error': 'Estado de pedido inválido'})
+
+    if actualizar_estado_pedido(pedido_id, nuevo_estado):
+        return jsonify({'success': True})
+    return jsonify({'success': False, 'error': 'Pedido no encontrado o error al actualizar'})
+
+
+# ============================================================
 # INFORMES (solo admin)
 # ============================================================
 

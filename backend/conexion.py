@@ -417,6 +417,54 @@ def actualizar_estado_pedido(pedido_id: int, nuevo_estado: str) -> bool:
         return False
 
 
+def obtener_todos_pedidos() -> list:
+    """
+    Devuelve todos los pedidos para el panel de administración,
+    con número de mesa y estado. Ordenados del más reciente al más antiguo.
+    """
+    pedidos = []
+    try:
+        with get_connection() as conn:
+            with conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
+                cur.execute("""
+                    SELECT
+                        p.id_pedido,
+                        m.numero AS mesa_numero,
+                        e.nombre AS estado,
+                        p.total,
+                        p.observaciones,
+                        p.fecha_creacion
+                    FROM pedidos p
+                    JOIN mesas m ON m.id_mesa = p.mesa_id
+                    JOIN estados_pedido e ON e.id_estado = p.estado_id
+                    ORDER BY p.fecha_creacion DESC
+                """)
+                pedidos = [dict(row) for row in cur.fetchall()]
+    except Exception as e:
+        print(f"[ERROR] obtener_todos_pedidos: {e}")
+    return pedidos
+
+
+def obtener_estados_pedido_all() -> list:
+    """
+    Devuelve la lista de estados de pedido posibles (nombre, descripcion),
+    en el orden lógico del flujo.
+    """
+    estados = []
+    try:
+        with get_connection() as conn:
+            with conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
+                cur.execute("""
+                    SELECT nombre, descripcion
+                    FROM estados_pedido
+                    ORDER BY id_estado
+                """)
+                estados = [dict(row) for row in cur.fetchall()]
+    except Exception as e:
+        print(f"[ERROR] obtener_estados_pedido_all: {e}")
+    return estados
+
+
 # ============================================================
 # RESERVAS
 # ============================================================
