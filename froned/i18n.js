@@ -13,6 +13,8 @@
       // NAV / HERO
       'nav.menu': 'Menú',
       'nav.scan': '📷 Escanear Mesa',
+      'nav.scanPill': 'Escanear mesa',
+      'nav.cambiarMesa': 'Cambiar de mesa',
       'nav.galeria': 'Galería',
       'nav.contacto': 'Contacto',
       'nav.reservar': 'Reservar mesa',
@@ -198,6 +200,8 @@
       // NAV / HERO
       'nav.menu': 'Menu',
       'nav.scan': '📷 Scan Table',
+      'nav.scanPill': 'Scan table',
+      'nav.cambiarMesa': 'Change table',
       'nav.galeria': 'Gallery',
       'nav.contacto': 'Contact',
       'nav.reservar': 'Book a table',

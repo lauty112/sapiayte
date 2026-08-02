@@ -27,6 +27,7 @@ document.addEventListener('DOMContentLoaded', () => {
   cargarMenuDesdeBD();
   initReservasForm();
   actualizarVisibilidadTracking();
+  actualizarInterfazMesa();
 });
 
 // ============================================================
@@ -49,17 +50,42 @@ function cargarMesaDesdeStorage() {
 }
 
 function actualizarInterfazMesa() {
-  const navLogo = document.querySelector('.nav-logo');
-  if (!navLogo) return;
-  const old = navLogo.querySelector('.mesa-indicador');
-  if (old) old.remove();
+  const pill = document.getElementById('scan-pill');
+  if (!pill) return;
+  const pillText = pill.querySelector('.scan-pill-text');
   if (mesaActual && mesaActual.numero) {
-    const span = document.createElement('span');
-    span.className = 'mesa-indicador';
-    span.style.cssText = 'font-size:0.9rem; color:var(--gold); margin-left:10px;';
-    span.innerText = tF('mesa.indicador', { n: mesaActual.numero });
-    navLogo.appendChild(span);
+    pill.classList.add('scan-pill--mesa');
+    if (pillText) pillText.textContent = tF('mesa.indicador', { n: mesaActual.numero });
+    pill.title = T('nav.cambiarMesa');
+  } else {
+    pill.classList.remove('scan-pill--mesa');
+    if (pillText) pillText.textContent = T('nav.scanPill');
+    pill.title = T('nav.scan');
   }
+}
+
+// ============================================================
+// MENÚ MÓVIL (hamburguesa)
+// ============================================================
+function toggleMobileMenu() {
+  const menu = document.getElementById('mobile-menu');
+  const burger = document.getElementById('nav-burger');
+  if (!menu || !burger) return;
+  const abierto = !menu.classList.contains('open');
+  menu.classList.toggle('open', abierto);
+  burger.setAttribute('aria-expanded', String(abierto));
+  menu.setAttribute('aria-hidden', String(!abierto));
+  document.body.classList.toggle('menu-abierto', abierto);
+}
+
+function cerrarMobileMenu() {
+  const menu = document.getElementById('mobile-menu');
+  const burger = document.getElementById('nav-burger');
+  if (!menu || !burger) return;
+  menu.classList.remove('open');
+  burger.setAttribute('aria-expanded', 'false');
+  menu.setAttribute('aria-hidden', 'true');
+  document.body.classList.remove('menu-abierto');
 }
 
 // ============================================================
@@ -683,6 +709,15 @@ document.addEventListener('click', function(e) {
   const langBtn = document.getElementById('idioma-toggle');
   if (langBtn?.contains(e.target)) return;
 
+  // Cerrar menú móvil al tocar un link o el fondo
+  const mobileMenu = document.getElementById('mobile-menu');
+  if (mobileMenu?.classList.contains('open')) {
+    if (e.target.closest('a') || e.target === mobileMenu) {
+      cerrarMobileMenu();
+    }
+    return;
+  }
+
   const panel = document.getElementById('cart-panel');
   const toggle = document.getElementById('cart-toggle');
   const overlay = document.getElementById('cart-overlay');
@@ -702,6 +737,18 @@ document.addEventListener('click', function(e) {
   }
 });
 
+// Hamburguesa y teclado para el menú móvil
+document.addEventListener('DOMContentLoaded', () => {
+  const burger = document.getElementById('nav-burger');
+  if (burger) burger.addEventListener('click', (e) => {
+    e.stopPropagation();
+    toggleMobileMenu();
+  });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') cerrarMobileMenu();
+  });
+});
+
 // Re-renderizar contenido dinámico al cambiar el idioma
 document.addEventListener('idioma-cambiado', () => {
   actualizarInterfazMesa();
@@ -719,3 +766,5 @@ window.sendOrder = sendOrder;
 window.filtrarMenu = filtrarMenu;
 window.limpiarBusqueda = limpiarBusqueda;
 window.toggleTracking = toggleTracking;
+window.toggleMobileMenu = toggleMobileMenu;
+window.cerrarMobileMenu = cerrarMobileMenu;

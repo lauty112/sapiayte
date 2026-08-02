@@ -26,6 +26,18 @@ h1, h2, h3 {
 
 a { text-decoration: none; }
 
+/* ===== ACCESSIBILITY ===== */
+:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+  html { scroll-behavior: auto; }
+}
+
 /* ===== SCROLLBAR ===== */
 ::-webkit-scrollbar { width: 4px; }
 ::-webkit-scrollbar-track { background: var(--cream); }
@@ -153,12 +165,98 @@ nav {
 }
 .nav-links a:hover { color: var(--gold); }
 
-.mesa-indicador {
-  animation: fadeIn 0.3s ease;
-  font-size: 0.9rem;
-  color: var(--gold);
-  margin-left: 10px;
+/* ===== NAV ACTIONS (scan pill + burger) ===== */
+.nav-actions {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
 }
+
+.scan-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.55rem 1.15rem;
+  border: 1px solid var(--gold);
+  border-radius: 999px;
+  color: var(--gold);
+  font-family: 'Jost', sans-serif;
+  font-size: 0.65rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  background: transparent;
+  white-space: nowrap;
+  transition: background 0.3s, color 0.3s, border-color 0.3s;
+}
+.scan-pill:hover { background: var(--gold); color: var(--charcoal); }
+.scan-pill-icon { font-size: 0.95rem; line-height: 1; }
+
+.scan-pill--mesa {
+  background: var(--gold);
+  border-color: var(--gold);
+  color: var(--charcoal);
+  font-weight: 500;
+  letter-spacing: 0.08em;
+}
+.scan-pill--mesa:hover { background: #a8914a; border-color: #a8914a; color: var(--charcoal); }
+.scan-pill--mesa .scan-pill-icon { display: none; }
+
+.nav-burger {
+  display: none;
+  flex-direction: column;
+  justify-content: center;
+  gap: 5px;
+  width: 44px; height: 44px;
+  padding: 10px;
+  background: transparent;
+  border: 1px solid rgba(245,240,232,0.2);
+  border-radius: 50%;
+  cursor: pointer;
+}
+.nav-burger span {
+  display: block;
+  height: 2px;
+  width: 100%;
+  background: var(--cream);
+  transition: transform 0.3s, opacity 0.3s;
+}
+.nav-burger[aria-expanded="true"] span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+.nav-burger[aria-expanded="true"] span:nth-child(2) { opacity: 0; }
+.nav-burger[aria-expanded="true"] span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+/* Menú móvil a pantalla completa */
+.mobile-menu {
+  position: fixed;
+  inset: 0;
+  z-index: 900;
+  background: var(--charcoal);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.35s ease, visibility 0.35s;
+}
+.mobile-menu.open { opacity: 1; visibility: visible; }
+.mobile-menu-links {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  text-align: center;
+}
+.mobile-menu-links a {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 2.1rem;
+  font-weight: 300;
+  color: var(--cream);
+  letter-spacing: 0.05em;
+  padding: 0.6rem 1.25rem;
+  transition: color 0.3s;
+}
+.mobile-menu-links a:hover { color: var(--gold); }
+
+body.menu-abierto { overflow: hidden; }
 
 /* ===== HERO ===== */
 #inicio {
@@ -1068,6 +1166,28 @@ footer {
   .nav-links {
     display: none;
   }
+
+  .nav-actions {
+    gap: 0.5rem;
+  }
+
+  /* En mobile el botón "Reservar mesa" vive en el menú hamburguesa */
+  .nav-actions .btn {
+    display: none;
+  }
+
+  .nav-burger {
+    display: flex;
+  }
+
+  .scan-pill {
+    font-size: 0.6rem;
+    padding: 0.5rem 0.9rem;
+  }
+
+  .mobile-menu-links a {
+    font-size: 1.8rem;
+  }
   
   .hero-inner {
     grid-template-columns: 1fr;
@@ -1116,8 +1236,34 @@ footer {
     grid-row: auto;
   }
   
-  #cart-panel {
+  #cart-panel,
+  #tracking-panel {
     width: 100%;
+  }
+
+  /* FABs: más compactos y con respeto al notch/safe-area */
+  #cart-toggle,
+  #tracking-toggle {
+    width: 52px; height: 52px;
+    right: 1.25rem;
+  }
+  #cart-toggle {
+    bottom: calc(1.25rem + env(safe-area-inset-bottom, 0px));
+  }
+  #tracking-toggle {
+    bottom: calc(5.25rem + env(safe-area-inset-bottom, 0px));
+  }
+  .idioma-toggle {
+    left: 1rem;
+    bottom: calc(1rem + env(safe-area-inset-bottom, 0px));
+  }
+
+  /* Evita el auto-zoom de iOS al enfocar inputs */
+  .form-group input,
+  .form-group select,
+  .form-group textarea,
+  #searchInput {
+    font-size: 16px;
   }
   
   .tabs {

@@ -15,12 +15,30 @@
     <a href="#inicio" class="nav-logo">Sapy' <span>Aite</span></a>
     <div class="nav-links">
       <a href="#menu" data-i18n="nav.menu">Menú</a>
-      <a href="qr-scaner.html" class="btn-scan" data-i18n="nav.scan">📷 Escanear Mesa</a>
       <a href="#galeria" data-i18n="nav.galeria">Galería</a>
       <a href="#contacto" data-i18n="nav.contacto">Contacto</a>
     </div>
-    <a href="#reservas" class="btn" data-i18n="nav.reservar">Reservar mesa</a>
+    <div class="nav-actions">
+      <a href="qr-scaner.html" class="scan-pill" id="scan-pill">
+        <span class="scan-pill-icon">📷</span>
+        <span class="scan-pill-text">Escanear mesa</span>
+      </a>
+      <a href="#reservas" class="btn" data-i18n="nav.reservar">Reservar mesa</a>
+      <button id="nav-burger" class="nav-burger" aria-label="Abrir menú" aria-expanded="false" aria-controls="mobile-menu">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
   </nav>
+
+  <!-- MENÚ MÓVIL -->
+  <div id="mobile-menu" class="mobile-menu" aria-hidden="true">
+    <nav class="mobile-menu-links">
+      <a href="#menu" data-i18n="nav.menu">Menú</a>
+      <a href="#galeria" data-i18n="nav.galeria">Galería</a>
+      <a href="#contacto" data-i18n="nav.contacto">Contacto</a>
+      <a href="#reservas" data-i18n="nav.reservar">Reservar mesa</a>
+    </nav>
+  </div>
 
 
   <!-- HERO -->
