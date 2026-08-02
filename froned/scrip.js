@@ -15,6 +15,7 @@ let cart = [];
 let productIds = {};
 let menuDataGlobal = {};
 let categoriaActiva_Global = null;
+let mesaReservaSeleccionada = null;
 
 // ============================================================
 // INICIALIZACIÓN
@@ -317,9 +318,81 @@ function formatearFecha(fechaISO) {
   return `${d}/${m}/${y}`;
 }
 
+async function cargarDisponibilidadMesas() {
+  const form = document.querySelector('#reservas form');
+  const grid = document.getElementById('mesas-grid');
+  const hint = document.getElementById('mesas-hint');
+  if (!form || !grid || !hint) return;
+
+  const fecha = form.querySelector('input[name="fecha"]')?.value;
+  const hora  = form.querySelector('input[name="hora"]')?.value || '20:00';
+
+  if (!fecha) {
+    grid.innerHTML = '';
+    hint.textContent = 'Elegí fecha y hora para ver las mesas disponibles.';
+    mesaReservaSeleccionada = null;
+    return;
+  }
+
+  hint.textContent = 'Cargando mesas...';
+  try {
+    const res = await fetch(`${API_BASE}/mesas/disponibles?fecha=${encodeURIComponent(fecha)}&hora=${encodeURIComponent(hora)}`);
+    const data = await res.json();
+    if (!data.success || !Array.isArray(data.mesas)) {
+      hint.textContent = 'No se pudo cargar la disponibilidad.';
+      return;
+    }
+
+    const disponibles = data.mesas.filter(m => m.disponible);
+    hint.textContent = `${disponibles.length} de ${data.mesas.length} mesas disponibles.`;
+
+    // Si la mesa elegida dejó de estar disponible, se deselecciona
+    if (mesaReservaSeleccionada && !disponibles.some(m => m.id_mesa === mesaReservaSeleccionada.id_mesa)) {
+      mesaReservaSeleccionada = null;
+    }
+
+    grid.innerHTML = '';
+    data.mesas.forEach(m => {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'mesa-btn' + (m.disponible ? '' : ' ocupada');
+      btn.title = m.disponible ? `Mesa ${m.numero} disponible` : `Mesa ${m.numero} ocupada`;
+      btn.innerHTML = `<span class="mesa-icon">🍽️</span><span class="mesa-num">${m.numero}</span>`;
+
+      if (m.disponible) {
+        if (mesaReservaSeleccionada && mesaReservaSeleccionada.id_mesa === m.id_mesa) {
+          btn.classList.add('selected');
+        }
+        btn.addEventListener('click', () => {
+          const mismo = mesaReservaSeleccionada && mesaReservaSeleccionada.id_mesa === m.id_mesa;
+          mesaReservaSeleccionada = mismo ? null : { id_mesa: m.id_mesa, numero: m.numero };
+          grid.querySelectorAll('.mesa-btn.selected').forEach(b => b.classList.remove('selected'));
+          if (!mismo) btn.classList.add('selected');
+        });
+      } else {
+        btn.disabled = true;
+      }
+
+      grid.appendChild(btn);
+    });
+  } catch (e) {
+    console.error('Error cargando disponibilidad de mesas:', e);
+    hint.textContent = 'No se pudo cargar la disponibilidad.';
+  }
+}
+
 function initReservasForm() {
   const form = document.querySelector('#reservas form');
   if (!form) return;
+
+  // Al cambiar fecha u hora se actualiza la disponibilidad de mesas
+  const fechaInput = form.querySelector('input[name="fecha"]');
+  const horaInput  = form.querySelector('input[name="hora"]');
+  [fechaInput, horaInput].forEach(el => {
+    if (el) el.addEventListener('change', cargarDisponibilidadMesas);
+  });
+  // Si la fecha ya viene cargada (ej. al recargar), cargar de una
+  if (fechaInput?.value) cargarDisponibilidadMesas();
 
   form.addEventListener('submit', async function(e) {
     e.preventDefault();
@@ -328,6 +401,7 @@ function initReservasForm() {
     const nombre   = form.querySelector('input[name="nombre"]')?.value?.trim();
     const telefono = form.querySelector('input[name="telefono"]')?.value?.trim();
     const fecha    = form.querySelector('input[name="fecha"]')?.value;
+    const hora     = form.querySelector('input[name="hora"]')?.value || '20:00';
     const mensaje  = form.querySelector('textarea[name="mensaje"]')?.value?.trim() || '';
     const selectPersonas = form.querySelector('select[name="personas"]');
     const personasTexto = selectPersonas?.value || '1 — 2 personas';
@@ -347,6 +421,8 @@ function initReservasForm() {
     text += `👤 *Nombre:* ${nombre}\n`;
     text += `📞 *Teléfono:* ${telefono}\n`;
     text += `📅 *Fecha:* ${formatearFecha(fecha)}\n`;
+    text += `🕘 *Hora:* ${hora}\n`;
+    if (mesaReservaSeleccionada) text += `🪑 *Mesa:* ${mesaReservaSeleccionada.numero}\n`;
     text += `👥 *Personas:* ${personasTexto}\n`;
     if (mensaje) text += `💬 *Mensaje:* ${mensaje}\n`;
     text += `───────────────────\n`;
@@ -355,10 +431,12 @@ function initReservasForm() {
     // Envío opcional a la API (no bloquea el envío por WhatsApp)
     try {
       const reservaData = {
-        nombre, telefono, fecha, hora: '20:00:00',
+        nombre, telefono, fecha, hora,
         personas: isNaN(personasNum) ? 2 : personasNum,
         mensaje,
-        mesa_id: mesaActual ? (mesaActual.id || mesaActual.id_mesa) : null
+        mesa_id: mesaReservaSeleccionada
+          ? mesaReservaSeleccionada.id_mesa
+          : (mesaActual ? (mesaActual.id || mesaActual.id_mesa) : null)
       };
       await fetch(`${API_BASE}/reserva/crear`, {
         method: 'POST',
@@ -377,6 +455,8 @@ function initReservasForm() {
     );
 
     form.reset();
+    mesaReservaSeleccionada = null;
+    cargarDisponibilidadMesas();
   });
 }
 // ============================================================
