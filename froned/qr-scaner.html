@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>Escanear QR - Sapy'Aite</title>
+    <title data-i18n="qr.title">Escanear QR - Sapy'Aite</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -114,14 +114,33 @@
         .back-link { margin-top: 2rem; color: #7a7065; text-decoration: none; font-size: 0.8rem; }
         .back-link:hover { color: #b89a5a; }
 
+        .idioma-toggle {
+            position: fixed;
+            bottom: 1.25rem;
+            left: 1.25rem;
+            z-index: 700;
+            background: rgba(26,26,24,0.85);
+            border: 1px solid #b89a5a;
+            color: #f5f0e8;
+            font-family: 'Jost', sans-serif;
+            font-size: 0.7rem;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            padding: 0.55rem 1rem;
+            border-radius: 999px;
+            cursor: pointer;
+            transition: background 0.3s, color 0.3s;
+        }
+        .idioma-toggle:hover { background: #b89a5a; color: #1a1a18; }
+
         footer { text-align: center; padding: 1.5rem; color: #7a7065; font-size: 0.7rem; }
     </style>
 </head>
 <body>
     <div class="scanner-container">
         <div class="scanner-header">
-            <h1>Escanear QR de la mesa</h1>
-            <p>Acercá el código QR de tu mesa a la cámara</p>
+            <h1 data-i18n="qr.h1">Escanear QR de la mesa</h1>
+            <p data-i18n="qr.sub">Acercá el código QR de tu mesa a la cámara</p>
         </div>
 
         <div class="video-container">
@@ -131,24 +150,25 @@
         </div>
 
         <div class="controls">
-            <button class="btn" id="startCamera">📷 Iniciar cámara</button>
-            <button class="btn" id="stopCamera">⏹️ Detener</button>
+            <button class="btn" id="startCamera" data-i18n="qr.iniciar">📷 Iniciar cámara</button>
+            <button class="btn" id="stopCamera" data-i18n="qr.detener">⏹️ Detener</button>
         </div>
 
         <div class="loading" id="loading">
             <div class="spinner"></div>
-            <p style="margin-top:0.5rem;">Verificando mesa...</p>
+            <p style="margin-top:0.5rem;" data-i18n="qr.verificando">Verificando mesa...</p>
         </div>
 
         <div id="result"></div>
 
-        <a href="index.html" class="back-link">← Volver al inicio</a>
+        <a href="index.html" class="back-link" data-i18n="qr.volver">← Volver al inicio</a>
     </div>
 
     <footer>
-        <p>Sapy'Aite — Escaneá el QR de tu mesa para comenzar a pedir</p>
+        <p data-i18n="qr.footer">Sapy'Aite — Escaneá el QR de tu mesa para comenzar a pedir</p>
     </footer>
 
+    <script src="i18n.js"></script>
     <script src="https://unpkg.com/@zxing/library@0.18.6/umd/index.min.js"></script>
     <script>
         // ✅ FIX: URL centralizada y adaptable para entorno local / remoto.
@@ -185,8 +205,8 @@
                         const mesa = JSON.parse(savedMesa);
                         resultDiv.innerHTML = `
                             <div class="result success">
-                                <h3>✓ Mesa ya verificada</h3>
-                                <p>Mesa ${mesa.numero} — <a href="index.html" style="color:#b89a5a;font-weight:bold;">Ir al menú →</a></p>
+                                <h3>${T('qr.yaVerificada')}</h3>
+                                <p>${tF('qr.mesa', { n: mesa.numero })} — <a href="index.html" style="color:#b89a5a;font-weight:bold;">${T('qr.irMenu')}</a></p>
                             </div>`;
                     } catch(e) {
                         localStorage.removeItem('mesa_actual');
@@ -201,7 +221,7 @@
                 videoInputDevices = await codeReader.listVideoInputDevices();
 
                 if (videoInputDevices.length === 0) {
-                    showResult('error', 'No se encontró ninguna cámara en este dispositivo');
+                    showResult('error', T('qr.sinCamara'));
                     return;
                 }
 
@@ -215,7 +235,7 @@
 
             } catch (err) {
                 console.error('Error al iniciar cámara:', err);
-                showResult('error', 'No se pudo acceder a la cámara. Verificá los permisos del navegador.');
+                showResult('error', T('qr.accesoCamera'));
             }
         }
 
@@ -241,11 +261,11 @@
                 });
 
                 isScanning = true;
-                showResult('info', 'Cámara activa. Apuntá al código QR de la mesa...');
+                showResult('info', T('qr.camaraActiva'));
 
             } catch (err) {
                 console.error('Error al iniciar el escaneo:', err);
-                showResult('error', 'Error al iniciar el escaneo continuo');
+                showResult('error', T('qr.errorEscaneo'));
             }
         }
 
@@ -280,14 +300,14 @@
                     localStorage.setItem('mesa_token', qrData);
 
                     showResult('success',
-                        `<h3>✓ Éxito</h3>
-                         <p>¡Mesa ${data.mesa.numero} asignada correctamente!<br>Redirigiendo al menú...</p>`
+                        `<h3>${T('qr.exito')}</h3>
+                         <p>${tF('qr.mesaAsignada', { n: data.mesa.numero })}</p>`
                     );
 
                     setTimeout(() => { window.location.href = 'index.html'; }, 2000);
 
                 } else {
-                    showResult('error', `❌ ${data.error || 'Código QR o mesa no válida.'}`);
+                    showResult('error', `❌ ${data.error || T('qr.qrInvalido')}`);
 
                     // Reanudar escaneo automáticamente si la cámara estaba activa
                     if (isScanning && videoInputDevices.length > 0) {
@@ -297,7 +317,7 @@
 
             } catch (error) {
                 console.error('Error al verificar mesa:', error);
-                showResult('error', `Error de comunicación con el servidor. ¿Está el backend corriendo en ${API_URL}?`);
+                showResult('error', tF('qr.errorComunicacion', { url: API_URL }));
             } finally {
                 loadingDiv.classList.remove('active');
             }
@@ -314,7 +334,7 @@
             if (message.includes('<h3>')) {
                 resultDiv.innerHTML = `<div class="result ${type}">${message}</div>`;
             } else {
-                const titles = { success: '✓ Éxito', error: '✗ Error', info: 'ℹ️ Información' };
+                const titles = { success: T('qr.exito'), error: T('qr.error'), info: T('qr.info') };
                 resultDiv.innerHTML = `
                     <div class="result ${type}">
                         <h3>${titles[type] || ''}</h3>

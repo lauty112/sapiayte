@@ -110,3 +110,22 @@ body {
 .back-link:hover {
   color: #c0471a;
 }
+
+.idioma-toggle {
+  position: fixed;
+  bottom: 1.25rem;
+  left: 1.25rem;
+  z-index: 700;
+  background: rgba(26,26,24,0.85);
+  border: 1px solid #b89a5a;
+  color: #f5f0e8;
+  font-family: 'Jost', sans-serif;
+  font-size: 0.7rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  padding: 0.55rem 1rem;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: background 0.3s, color 0.3s;
+}
+.idioma-toggle:hover { background: #b89a5a; color: #1a1a18; }

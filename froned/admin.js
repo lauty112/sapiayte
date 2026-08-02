@@ -75,7 +75,7 @@ async function cargarCategorias() {
       // Opción inicial vacía
       const defOption = document.createElement('option');
       defOption.value = '';
-      defOption.textContent = '-- Selecciona una Categoría --';
+      defOption.textContent = T('admin.seleccionaCategoria');
       select.appendChild(defOption);
 
       window.categorias.forEach(cat => {
@@ -107,16 +107,16 @@ async function cargarProductos() {
         row.insertCell(1).textContent = prod.nombre;
         row.insertCell(2).textContent = prod.categoria_nombre;
         row.insertCell(3).textContent = `$${prod.precio}`;
-        row.insertCell(4).textContent = prod.disponible ? 'Sí' : 'No';
+        row.insertCell(4).textContent = prod.disponible ? T('admin.si') : T('admin.no');
         
         const acciones = row.insertCell(5);
         const editBtn = document.createElement('button');
-        editBtn.textContent = 'Editar';
+        editBtn.textContent = T('admin.editar');
         editBtn.className = 'edit';
         editBtn.onclick = () => editarProducto(prod);
         
         const deleteBtn = document.createElement('button');
-        deleteBtn.textContent = 'Eliminar';
+        deleteBtn.textContent = T('admin.eliminar');
         deleteBtn.className = 'delete';
         deleteBtn.onclick = () => eliminarProducto(prod.id);
         
@@ -130,7 +130,7 @@ async function cargarProductos() {
 }
 
 async function eliminarProducto(id) {
-  if (!confirm(`¿Eliminar producto ID ${id}?`)) return;
+  if (!confirm(tF('admin.confirmEliminar', { id }))) return;
   try {
     const res = await fetch(`${window.API_URL}/admin/productos/${id}`, {
       method: 'DELETE',
@@ -140,10 +140,10 @@ async function eliminarProducto(id) {
     if (data.success) {
       cargarProductos();
     } else {
-      alert('Error: ' + (data.error || 'No se pudo eliminar'));
+      alert('Error: ' + (data.error || T('admin.errorEliminar')));
     }
   } catch(e) {
-    alert('Error de conexión');
+    alert(T('admin.errorConexion'));
   }
 }
 
@@ -156,13 +156,13 @@ function editarProducto(prod) {
   document.getElementById('imagenUrl').value = prod.imagen_url || '';
   document.getElementById('disponible').checked = prod.disponible;
   
-  document.querySelector('.product-form-section h2').textContent = 'Editar Producto (ID: ' + prod.id + ')';
+  document.querySelector('.product-form-section h2').textContent = tF('admin.editarTitulo', { id: prod.id });
 }
 
 function resetFormulario() {
   document.getElementById('productId').value = '';
   document.getElementById('productForm').reset();
-  document.querySelector('.product-form-section h2').textContent = 'Producto';
+  document.querySelector('.product-form-section h2').textContent = T('admin.producto');
 }
 
 document.getElementById('productForm').addEventListener('submit', async (e) => {
@@ -196,10 +196,10 @@ document.getElementById('productForm').addEventListener('submit', async (e) => {
       resetFormulario();
       cargarProductos();
     } else {
-      alert('Error: ' + (data.error || 'No se pudo guardar'));
+      alert('Error: ' + (data.error || T('admin.errorGuardar')));
     }
   } catch(e) { 
-    alert('Error de conexión'); 
+    alert(T('admin.errorConexion')); 
   }
 });
 
@@ -208,4 +208,10 @@ document.getElementById('cancelEditBtn').addEventListener('click', resetFormular
 document.getElementById('logoutBtn').addEventListener('click', async () => {
   await fetch(`${window.API_URL}/logout`, { method: 'POST', credentials: 'include' });
   window.location.href = 'login.html';
+});
+
+// Al cambiar el idioma se re-renderiza la lista y las categorías
+document.addEventListener('idioma-cambiado', async () => {
+  if (document.getElementById('categoriaId')) await cargarCategorias();
+  if (document.getElementById('productsTbody')) await cargarProductos();
 });

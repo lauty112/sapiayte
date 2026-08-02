@@ -25,10 +25,10 @@ document.getElementById('loginForm').addEventListener('submit', async (e) => {
       // Redirigir al panel de administración
       window.location.href = 'admin.html';
     } else {
-      errorDiv.textContent = data.error || 'Credenciales incorrectas';
+      errorDiv.textContent = data.error || T('login.errorCredenciales');
     }
   } catch (err) {
-    errorDiv.textContent = 'Error de conexión con el servidor';
+    errorDiv.textContent = T('login.errorConexion');
     console.error(err);
   }
 });

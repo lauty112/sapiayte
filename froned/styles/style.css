@@ -688,6 +688,26 @@ footer {
 
 #cart-toggle svg { width: 22px; height: 22px; stroke: white; fill: none; stroke-width: 1.8; }
 
+/* Selector de idioma */
+.idioma-toggle {
+  position: fixed;
+  bottom: 1.25rem;
+  left: 1.25rem;
+  z-index: 700;
+  background: rgba(26,26,24,0.85);
+  border: 1px solid var(--gold);
+  color: var(--cream);
+  font-family: 'Jost', sans-serif;
+  font-size: 0.7rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  padding: 0.55rem 1rem;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: background 0.3s, color 0.3s;
+}
+.idioma-toggle:hover { background: var(--gold); color: var(--charcoal); }
+
 #cart-count {
   position: absolute;
   top: -4px; right: -4px;

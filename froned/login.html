@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Iniciar Sesión - Sapy'Aite</title>
+  <title data-i18n="login.title">Iniciar Sesión - Sapy'Aite</title>
   <link rel="icon" type="image/x-icon" href="img/logosapy.jpg">
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles/login.css">   <!-- CSS específico para login -->
@@ -12,22 +12,23 @@
   <div class="login-container">
     <div class="login-card">
       <h1>Sapy' <span>Aite</span></h1>
-      <h2>Iniciar Sesión</h2>
+      <h2 data-i18n="login.titulo">Iniciar Sesión</h2>
       <form id="loginForm">
         <div class="input-group">
-          <label>Email</label>
+          <label data-i18n="login.email">Email</label>
           <input type="email" id="email" required autocomplete="email">
         </div>
         <div class="input-group">
-          <label>Contraseña</label>
+          <label data-i18n="login.password">Contraseña</label>
           <input type="password" id="password" required autocomplete="current-password">
         </div>
-        <button type="submit" class="btn-login-submit">Ingresar</button>
+        <button type="submit" class="btn-login-submit" data-i18n="login.ingresar">Ingresar</button>
         <div id="errorMsg" class="error-msg"></div>
       </form>
-      <a href="index.html" class="back-link">← Volver al sitio</a>
+      <a href="index.html" class="back-link" data-i18n="login.volver">← Volver al sitio</a>
     </div>
   </div>
+  <script src="i18n.js"></script>
   <script src="login.js"></script>
 </body>
 </html>

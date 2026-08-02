@@ -14,12 +14,12 @@
   <nav>
     <a href="#inicio" class="nav-logo">Sapy' <span>Aite</span></a>
     <div class="nav-links">
-      <a href="#menu">Menú</a>
-      <a href="qr-scaner.html" class="btn-scan">📷 Escanear Mesa</a>
-      <a href="#galeria">Galería</a>
-      <a href="#contacto">Contacto</a>
+      <a href="#menu" data-i18n="nav.menu">Menú</a>
+      <a href="qr-scaner.html" class="btn-scan" data-i18n="nav.scan">📷 Escanear Mesa</a>
+      <a href="#galeria" data-i18n="nav.galeria">Galería</a>
+      <a href="#contacto" data-i18n="nav.contacto">Contacto</a>
     </div>
-    <a href="#reservas" class="btn">Reservar mesa</a>
+    <a href="#reservas" class="btn" data-i18n="nav.reservar">Reservar mesa</a>
   </nav>
 
 
@@ -31,13 +31,13 @@
 
     <div class="hero-inner">
       <div>
-        <h1 class="hero-title fade-2">
+        <h1 class="hero-title fade-2" data-i18n-html="hero.title">
           patio<br>
           <em>de comidas</em><br>
         </h1>
         <div class="hero-btns fade-4">
-          <a href="#menu" class="btn">Ver menú</a>
-          <a href="#reservas" class="btn btn--ghost">Hacer reserva</a>
+          <a href="#menu" class="btn" data-i18n="hero.verMenu">Ver menú</a>
+          <a href="#reservas" class="btn btn--ghost" data-i18n="hero.hacerReserva">Hacer reserva</a>
         </div>
       </div>
 
@@ -45,15 +45,15 @@
         <div class="hero-plate">
           🥩
           <div class="hero-badge">
-            <p>Abierto hoy</p>
-            <p>12:00 — 00:00 hs</p>
+            <p data-i18n="hero.abierto">Abierto hoy</p>
+            <p data-i18n="hero.horas">12:00 — 00:00 hs</p>
           </div>
         </div>
       </div>
     </div>
 
     <div class="scroll-indicator">
-      <span>Scroll</span>
+      <span data-i18n="hero.scroll">Scroll</span>
       <div class="scroll-line"></div>
     </div>
   </section>
@@ -63,16 +63,16 @@
   <section id="menu">
     <div class="menu-inner">
       <div class="menu-header">
-        <span class="section-label">Sabores auténticos</span>
+        <span class="section-label" data-i18n="menu.label">Sabores auténticos</span>
         <div class="divider divider--center"></div>
-        <h2>Nuestro Menú</h2>
-        <p class="menu-subtitle">Platos preparados con ingredientes frescos y pasión</p>
+        <h2 data-i18n="menu.titulo">Nuestro Menú</h2>
+        <p class="menu-subtitle" data-i18n="menu.sub">Platos preparados con ingredientes frescos y pasión</p>
       </div>
 
       <div class="menu-search">
         <div class="search-container">
           <span class="search-icon">🔍</span>
-          <input type="text" id="searchInput" placeholder="Buscar en el menú..." onkeyup="filtrarMenu()">
+          <input type="text" id="searchInput" data-i18n-placeholder="menu.buscar" placeholder="Buscar en el menú..." onkeyup="filtrarMenu()">
           <button class="search-clear" onclick="limpiarBusqueda()">✕</button>
         </div>
       </div>
@@ -89,10 +89,10 @@
   <!-- RESERVAS -->
   <section id="reservas">
     <div class="reservas-inner">
-      <span class="section-label">¿Tenés un momento especial?</span>
+      <span class="section-label" data-i18n="reservas.label">¿Tenés un momento especial?</span>
       <div class="divider divider--center"></div>
-      <h2>Reservá tu mesa</h2>
-      <p>Asegurá tu lugar con tiempo. Para grupos mayores de 8 personas, contactanos directamente.</p>
+      <h2 data-i18n="reservas.titulo">Reservá tu mesa</h2>
+      <p data-i18n="reservas.sub">Asegurá tu lugar con tiempo. Para grupos mayores de 8 personas, contactanos directamente.</p>
 
       <!--
         ✅ FIX: Se eliminó onsubmit="return false;" del HTML.
@@ -101,41 +101,41 @@
       -->
       <form class="form-grid">
         <div class="form-group">
-          <label>Nombre</label>
-          <input type="text" name="nombre" placeholder="Tu nombre">
+          <label data-i18n="form.nombre">Nombre</label>
+          <input type="text" name="nombre" data-i18n-placeholder="form.ph.nombre" placeholder="Tu nombre">
         </div>
         <div class="form-group">
-          <label>Teléfono</label>
-          <input type="tel" name="telefono" placeholder="+54 11 ...">
+          <label data-i18n="form.telefono">Teléfono</label>
+          <input type="tel" name="telefono" data-i18n-placeholder="form.ph.telefono" placeholder="+54 11 ...">
         </div>
         <div class="form-group">
-          <label>Fecha</label>
+          <label data-i18n="form.fecha">Fecha</label>
           <input type="date" name="fecha">
         </div>
         <div class="form-group">
-          <label>Hora</label>
+          <label data-i18n="form.hora">Hora</label>
           <input type="time" name="hora" value="20:00">
         </div>
         <div class="form-group">
-          <label>Personas</label>
+          <label data-i18n="form.personas">Personas</label>
           <select name="personas">
-            <option>1 — 2 personas</option>
-            <option>3 — 4 personas</option>
-            <option>5 — 6 personas</option>
-            <option>7 — 8 personas</option>
+            <option data-i18n="form.personas.1">1 — 2 personas</option>
+            <option data-i18n="form.personas.2">3 — 4 personas</option>
+            <option data-i18n="form.personas.3">5 — 6 personas</option>
+            <option data-i18n="form.personas.4">7 — 8 personas</option>
           </select>
         </div>
         <div class="form-group form-full">
-          <label>Elegí tu mesa</label>
-          <p class="mesas-hint" id="mesas-hint">Elegí fecha y hora para ver las mesas disponibles.</p>
+          <label data-i18n="form.mesa">Elegí tu mesa</label>
+          <p class="mesas-hint" id="mesas-hint" data-i18n="reservas.hintInicial">Elegí fecha y hora para ver las mesas disponibles.</p>
           <div class="mesas-grid" id="mesas-grid"></div>
         </div>
         <div class="form-group form-full">
-          <label>Mensaje (opcional)</label>
-          <textarea name="mensaje" rows="3" placeholder="Ocasión especial, alergias, preferencias..."></textarea>
+          <label data-i18n="form.mensaje">Mensaje (opcional)</label>
+          <textarea name="mensaje" rows="3" data-i18n-placeholder="form.ph.mensaje" placeholder="Ocasión especial, alergias, preferencias..."></textarea>
         </div>
         <div class="form-submit">
-          <button type="submit" class="btn btn--dark">📲 Reservar por WhatsApp</button>
+          <button type="submit" class="btn btn--dark" data-i18n="form.reservar">📲 Reservar por WhatsApp</button>
         </div>
       </form>
     </div>
@@ -146,9 +146,9 @@
   <section id="galeria">
     <div class="galeria-inner">
       <div class="galeria-header">
-        <span class="section-label">El ambiente</span>
+        <span class="section-label" data-i18n="galeria.label">El ambiente</span>
         <div class="divider divider--center"></div>
-        <h2>Viví la experiencia</h2>
+        <h2 data-i18n="galeria.titulo">Viví la experiencia</h2>
       </div>
 
       <!--
@@ -172,7 +172,7 @@
     <div class="contacto-inner">
 
       <div class="contacto-block">
-        <span class="section-label">Ubicación</span>
+        <span class="section-label" data-i18n="contacto.ubicacion">Ubicación</span>
         <div class="divider"></div>
         <h3>Av. del Libertador 1842</h3>
         <p style="color:var(--muted); margin-top:0.5rem;">Palermo, Buenos Aires</p>
@@ -180,23 +180,23 @@
       </div>
 
       <div class="contacto-block">
-        <span class="section-label">Horarios</span>
+        <span class="section-label" data-i18n="contacto.horarios">Horarios</span>
         <div class="divider"></div>
         <div class="contacto-horarios">
           <div class="horario-row">
-            <span>Lun — Vie</span>
+            <span data-i18n="contacto.horario1">Lun — Vie</span>
             <span>12:00 — 00:00</span>
           </div>
           <div class="horario-row">
-            <span>Sáb — Dom</span>
+            <span data-i18n="contacto.horario2">Sáb — Dom</span>
             <span>11:00 — 01:00</span>
           </div>
         </div>
-        <span class="open-label">● Abierto hoy</span>
+        <span class="open-label" data-i18n="contacto.abierto">● Abierto hoy</span>
       </div>
 
       <div class="contacto-block">
-        <span class="section-label">Contacto</span>
+        <span class="section-label" data-i18n="contacto.contacto">Contacto</span>
         <div class="divider"></div>
         <div class="contacto-links">
           <a href="tel:+543756565902">+54 3756 565902</a>
@@ -213,13 +213,13 @@
 
 
   <!-- CARRITO FLOTANTE -->
-  <button id="cart-toggle" onclick="toggleCart()" title="Ver pedido">
+  <button id="cart-toggle" onclick="toggleCart()" title="Ver pedido" data-i18n-title="cart.title">
     <svg viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
     <span id="cart-count">0</span>
   </button>
 
   <!-- SEGUIMIENTO FLOTANTE (visible cuando hay un pedido enviado) -->
-  <button id="tracking-toggle" onclick="toggleTracking()" title="Seguir pedido" style="display:none;">
+  <button id="tracking-toggle" onclick="toggleTracking()" title="Seguir pedido" style="display:none;" data-i18n-title="tracking.title">
     <svg viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
   </button>
 
@@ -230,8 +230,8 @@
   <div id="cart-panel">
     <div class="cart-header">
       <div class="cart-header-left">
-        <span class="section-label">Tu pedido</span>
-        <div class="cart-title">Carrito</div>
+        <span class="section-label" data-i18n="cart.label">Tu pedido</span>
+        <div class="cart-title" data-i18n="cart.titulo">Carrito</div>
       </div>
       <button id="cart-close" onclick="toggleCart()">✕</button>
     </div>
@@ -239,18 +239,18 @@
     <div id="cart-items">
       <div class="cart-empty" id="cart-empty-msg">
         <svg viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
-        <p>Tu carrito está vacío</p>
+        <p data-i18n="cart.vacio">Tu carrito está vacío</p>
       </div>
     </div>
 
     <div class="cart-footer">
       <div class="cart-total-row">
-        <span class="cart-total-label">Total</span>
+        <span class="cart-total-label" data-i18n="cart.total">Total</span>
         <span class="cart-total-amount" id="cart-total"><span>$</span>0</span>
       </div>
       <div class="cart-actions">
-        <button class="btn--cart-order" onclick="sendOrder()">Enviar pedido por WhatsApp</button>
-        <button class="btn--cart-clear" onclick="clearCart()">Vaciar carrito</button>
+        <button class="btn--cart-order" onclick="sendOrder()" data-i18n="cart.enviar">Enviar pedido por WhatsApp</button>
+        <button class="btn--cart-clear" onclick="clearCart()" data-i18n="cart.vaciar">Vaciar carrito</button>
       </div>
     </div>
   </div>
@@ -263,8 +263,8 @@
   <div id="tracking-panel">
     <div class="cart-header">
       <div class="cart-header-left">
-        <span class="section-label">Seguimiento</span>
-        <div class="cart-title">Pedido <span id="tracking-id"></span></div>
+        <span class="section-label" data-i18n="tracking.label">Seguimiento</span>
+        <div class="cart-title"><span data-i18n="tracking.titulo">Pedido</span> <span id="tracking-id"></span></div>
       </div>
       <button id="tracking-close" onclick="toggleTracking()">✕</button>
     </div>
@@ -275,10 +275,10 @@
   <!-- FOOTER -->
   <footer>
     <span class="footer-logo">Sapy' Aite</span>
-    <span class="footer-copy">© 2024 Sapy'Aite — Todos los derechos reservados</span>
+    <span class="footer-copy" data-i18n="footer.derechos">© 2024 Sapy'Aite — Todos los derechos reservados</span>
     <div class="footer-links">
-      <a href="#">Privacidad</a>
-      <a href="#">Términos</a>
+      <a href="#" data-i18n="footer.privacidad">Privacidad</a>
+      <a href="#" data-i18n="footer.terminos">Términos</a>
     </div>
   </footer>
 
@@ -287,6 +287,7 @@
     El JS es código del frontend y debe estar en la misma carpeta que index.html.
     Si preferís otra ubicación, ajustá la ruta (ej: "js/scrip.js").
   -->
+  <script src="i18n.js"></script>
   <script src="scrip.js"></script>
 </body>
 </html>

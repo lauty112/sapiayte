@@ -57,7 +57,7 @@ function actualizarInterfazMesa() {
     const span = document.createElement('span');
     span.className = 'mesa-indicador';
     span.style.cssText = 'font-size:0.9rem; color:var(--gold); margin-left:10px;';
-    span.innerText = `🍽️ Mesa ${mesaActual.numero}`;
+    span.innerText = tF('mesa.indicador', { n: mesaActual.numero });
     navLogo.appendChild(span);
   }
 }
@@ -90,7 +90,7 @@ function addToCart(name, price, btn) {
   const existing = cart.find(i => i.name === name);
   if (existing) {
     if (existing.qty < 99) existing.qty++;
-    else { alert('Máximo 99'); return; }
+    else { alert(T('alerta.max99')); return; }
   } else {
     cart.push({ name, price, qty: 1, product_id: productIds[name] || null });
   }
@@ -105,7 +105,7 @@ function changeQty(name, delta) {
   if (newQty <= 0) {
     cart = cart.filter(i => i.name !== name);
   } else if (newQty > 99) {
-    alert('Máximo 99');
+    alert(T('alerta.max99'));
     return;
   } else {
     item.qty = newQty;
@@ -115,7 +115,7 @@ function changeQty(name, delta) {
 }
 
 function clearCart() {
-  if (confirm('¿Vaciar carrito?')) {
+  if (confirm(T('confirm.vaciar'))) {
     cart = [];
     renderCart();
     guardarCarrito();
@@ -141,7 +141,7 @@ function renderCart() {
 
   // Caso carrito vacío
   if (cart.length === 0) {
-    container.innerHTML = `<div class="cart-empty"><svg viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg><p>Tu carrito está vacío</p></div>`;
+    container.innerHTML = `<div class="cart-empty"><svg viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg><p>${T('cart.vacio')}</p></div>`;
     document.getElementById('cart-total').innerHTML = '<span>$</span>0';
     updateCartCount();
     return;
@@ -162,7 +162,7 @@ function renderCart() {
     infoDiv.className = 'cart-item-info';
     infoDiv.innerHTML = `
       <div class="cart-item-name">${escapeHtml(item.name)}</div>
-      <div class="cart-item-price">$${item.price.toLocaleString('es-AR')}</div>
+      <div class="cart-item-price">$${formatearPrecio(item.price)}</div>
     `;
 
     // Acciones (botones + y -)
@@ -202,7 +202,7 @@ function renderCart() {
   });
 
   // Actualizar total y contador
-  document.getElementById('cart-total').innerHTML = '<span>$</span>' + total.toLocaleString('es-AR');
+  document.getElementById('cart-total').innerHTML = '<span>$</span>' + formatearPrecio(total);
   updateCartCount();
 }
 
@@ -248,6 +248,10 @@ function escapeHtml(str) {
   });
 }
 
+function formatearPrecio(n) {
+  return Number(n || 0).toLocaleString(T('loc.num'));
+}
+
 // ============================================================
 // ENVÍO DE PEDIDO
 // ============================================================
@@ -257,17 +261,17 @@ async function sendOrder() {
   if (mesa) mesaActual = mesa;
 
   if (cart.length === 0) {
-    alert('Carrito vacío');
+    alert(T('alerta.carritoVacio'));
     return;
   }
   if (!mesa || (!mesa.numero && !mesa.id)) {
-    alert('No hay mesa seleccionada. Escanea QR.');
-    if (confirm('Ir a escanear?')) location.href = 'qr-scaner.html';
+    alert(T('alerta.sinMesa'));
+    if (confirm(T('confirm.irEscanear'))) location.href = 'qr-scaner.html';
     return;
   }
   const missing = cart.filter(item => !item.product_id);
   if (missing.length) {
-    alert('Error: productos sin ID. Recarga.');
+    alert(T('alerta.sinID'));
     return;
   }
   const pedidoData = {
@@ -291,24 +295,24 @@ async function sendOrder() {
       // Guardar el pedido para poder seguir su estado
       localStorage.setItem('pedido_actual', JSON.stringify({ id: data.pedido_id, fecha: Date.now() }));
       actualizarVisibilidadTracking();
-      let text = `*Sapy'Aite — Pedido Confirmado*\nMesa N°: ${mesa.numero}\nPedido ID: #${data.pedido_id}\n`;
+      let text = `${T('whatsapp.pedidoTitulo')}\n${tF('whatsapp.mesa', { n: mesa.numero })}\n${tF('whatsapp.pedidoId', { id: data.pedido_id })}\n`;
       let total = 0;
       cart.forEach(i => {
-        text += `${i.qty}x ${i.name} — $${(i.price * i.qty).toLocaleString('es-AR')}\n`;
+        text += `${i.qty}x ${i.name} — $${formatearPrecio(i.price * i.qty)}\n`;
         total += i.price * i.qty;
       });
-      text += `Total: $${total.toLocaleString('es-AR')}\n¡Gracias!`;
+      text += `${T('whatsapp.total')}${formatearPrecio(total)}\n${T('whatsapp.gracias')}`;
       window.open(`https://wa.me/5493756565902?text=${encodeURIComponent(text)}`, '_blank');
       cart = [];
       renderCart();
       guardarCarrito();
       closeCart();
-      alert('¡Pedido enviado!');
+      alert(T('alerta.pedidoEnviado'));
     } else {
-      alert('Error: ' + (data.error || 'No se pudo registrar'));
+      alert('Error: ' + (data.error || T('alerta.errorRegistro')));
     }
   } catch (error) {
-    alert('Error de red. ¿Backend activo?');
+    alert(T('alerta.errorRed'));
   }
 }
 
@@ -316,18 +320,10 @@ async function sendOrder() {
 // SEGUIMIENTO DEL PEDIDO
 // ============================================================
 const ESTADOS_ORDEN = ['pendiente', 'en_preparacion', 'listo', 'entregado', 'pagado'];
-const NOMBRES_ESTADO = {
-  pendiente:       'Pendiente',
-  en_preparacion:  'En preparación',
-  listo:           'Listo',
-  entregado:       'Entregado',
-  pagado:          'Pagado',
-  cancelado:       'Cancelado'
-};
 let trackingInterval = null;
 
 function tEstado(estado) {
-  return NOMBRES_ESTADO[estado] || estado;
+  return T('estado.' + estado) || estado;
 }
 
 function getPedidoGuardado() {
@@ -372,7 +368,7 @@ async function renderSeguimiento() {
   const pedido = await cargarEstadoPedido();
 
   if (!pedido) {
-    body.innerHTML = `<p class="tracking-empty">No hay un pedido para seguir. Enviá tu pedido primero.</p>`;
+    body.innerHTML = `<p class="tracking-empty">${T('tracking.sinPedido')}</p>`;
     return;
   }
 
@@ -395,17 +391,17 @@ async function renderSeguimiento() {
   const itemsHtml = (pedido.items || []).map(it => `
     <div class="tracking-item">
       <span>${it.cantidad}x ${escapeHtml(it.nombre)}</span>
-      <span>$${it.subtotal.toLocaleString('es-AR')}</span>
-    </div>`).join('') || '<p class="tracking-empty">Sin ítems.</p>';
+      <span>$${formatearPrecio(it.subtotal)}</span>
+    </div>`).join('') || `<p class="tracking-empty">${T('tracking.sinItems')}</p>`;
 
   body.innerHTML = `
     ${cancelado
-      ? `<p class="tracking-cancelado">✕ Pedido cancelado</p>`
+      ? `<p class="tracking-cancelado">${T('tracking.cancelado')}</p>`
       : `<div class="tracking-steps">${pasosHtml}</div>`}
     <div class="tracking-detalle">
-      <p class="tracking-estado-line">Estado: <strong>${tEstado(pedido.estado)}</strong></p>
+      <p class="tracking-estado-line">${T('tracking.estado')} <strong>${tEstado(pedido.estado)}</strong></p>
       <div class="tracking-items">${itemsHtml}</div>
-      <div class="tracking-total">Total: <strong>$${pedido.total.toLocaleString('es-AR')}</strong></div>
+      <div class="tracking-total">${T('tracking.total')} <strong>$${formatearPrecio(pedido.total)}</strong></div>
     </div>`;
 }
 
@@ -463,22 +459,22 @@ async function cargarDisponibilidadMesas() {
 
   if (!fecha) {
     grid.innerHTML = '';
-    hint.textContent = 'Elegí fecha y hora para ver las mesas disponibles.';
+    hint.textContent = T('reservas.hintInicial');
     mesaReservaSeleccionada = null;
     return;
   }
 
-  hint.textContent = 'Cargando mesas...';
+  hint.textContent = T('reservas.cargando');
   try {
     const res = await fetch(`${API_BASE}/mesas/disponibles?fecha=${encodeURIComponent(fecha)}&hora=${encodeURIComponent(hora)}`);
     const data = await res.json();
     if (!data.success || !Array.isArray(data.mesas)) {
-      hint.textContent = 'No se pudo cargar la disponibilidad.';
+      hint.textContent = T('reservas.error');
       return;
     }
 
     const disponibles = data.mesas.filter(m => m.disponible);
-    hint.textContent = `${disponibles.length} de ${data.mesas.length} mesas disponibles.`;
+    hint.textContent = tF('reservas.disponibles', { n: disponibles.length, m: data.mesas.length });
 
     // Si la mesa elegida dejó de estar disponible, se deselecciona
     if (mesaReservaSeleccionada && !disponibles.some(m => m.id_mesa === mesaReservaSeleccionada.id_mesa)) {
@@ -490,7 +486,7 @@ async function cargarDisponibilidadMesas() {
       const btn = document.createElement('button');
       btn.type = 'button';
       btn.className = 'mesa-btn' + (m.disponible ? '' : ' ocupada');
-      btn.title = m.disponible ? `Mesa ${m.numero} disponible` : `Mesa ${m.numero} ocupada`;
+      btn.title = m.disponible ? tF('mesa.disponible', { n: m.numero }) : tF('mesa.ocupada', { n: m.numero });
       btn.innerHTML = `<span class="mesa-icon">🍽️</span><span class="mesa-num">${m.numero}</span>`;
 
       if (m.disponible) {
@@ -511,7 +507,7 @@ async function cargarDisponibilidadMesas() {
     });
   } catch (e) {
     console.error('Error cargando disponibilidad de mesas:', e);
-    hint.textContent = 'No se pudo cargar la disponibilidad.';
+    hint.textContent = T('reservas.error');
   }
 }
 
@@ -545,22 +541,22 @@ function initReservasForm() {
 
     // Validación
     if (!nombre || !telefono || !fecha) {
-      alert('Completá todos los campos obligatorios.');
+      alert(T('alerta.obligatorios'));
       return;
     }
 
     // Armar mensaje de WhatsApp
-    let text = `*🍽️ Reserva — Sapy'Aite*\n`;
+    let text = `${T('whatsapp.reservaTitulo')}\n`;
     text += `───────────────────\n`;
-    text += `👤 *Nombre:* ${nombre}\n`;
-    text += `📞 *Teléfono:* ${telefono}\n`;
-    text += `📅 *Fecha:* ${formatearFecha(fecha)}\n`;
-    text += `🕘 *Hora:* ${hora}\n`;
-    if (mesaReservaSeleccionada) text += `🪑 *Mesa:* ${mesaReservaSeleccionada.numero}\n`;
-    text += `👥 *Personas:* ${personasTexto}\n`;
-    if (mensaje) text += `💬 *Mensaje:* ${mensaje}\n`;
+    text += `${tF('whatsapp.nombre', { v: nombre })}\n`;
+    text += `${tF('whatsapp.telefono', { v: telefono })}\n`;
+    text += `${tF('whatsapp.fecha', { v: formatearFecha(fecha) })}\n`;
+    text += `${tF('whatsapp.hora', { v: hora })}\n`;
+    if (mesaReservaSeleccionada) text += `${tF('whatsapp.mesaR', { v: mesaReservaSeleccionada.numero })}\n`;
+    text += `${tF('whatsapp.personas', { v: personasTexto })}\n`;
+    if (mensaje) text += `${tF('whatsapp.mensaje', { v: mensaje })}\n`;
     text += `───────────────────\n`;
-    text += `_Reserva enviada desde la web_`;
+    text += `${T('whatsapp.desdeWeb')}`;
 
     // Envío opcional a la API (no bloquea el envío por WhatsApp)
     try {
@@ -644,7 +640,7 @@ function renderizarProductos(categoria, filtro = '') {
   }
   productos = productos.filter(p => p.disponible !== false);
   if (!productos.length) {
-    container.innerHTML = '<p class="menu-subtitle" style="grid-column:1/-1;padding:2rem;">No se encontraron productos.</p>';
+    container.innerHTML = `<p class="menu-subtitle" style="grid-column:1/-1;padding:2rem;">${T('producto.sinResultados')}</p>`;
     return;
   }
   productos.forEach(p => {
@@ -655,14 +651,14 @@ function renderizarProductos(categoria, filtro = '') {
       <div class="item-info">
         <div class="item-title-row">
           <h3>${escapeHtml(p.nombre)}</h3>
-          <span class="price">$${parseInt(p.precio).toLocaleString('es-AR')}</span>
+          <span class="price">$${formatearPrecio(parseInt(p.precio))}</span>
         </div>
-        <p class="desc">${escapeHtml(p.descripcion || 'Sin descripción')}</p>
+        <p class="desc">${escapeHtml(p.descripcion || T('producto.sinDesc'))}</p>
       </div>
     `;
     const btn = document.createElement('button');
     btn.className = 'btn-add';
-    btn.textContent = 'Agregar';
+    btn.textContent = T('producto.agregar');
     btn.onclick = (function(nom, pre, bot) {
       return function() { addToCart(nom, pre, bot); };
     })(p.nombre, p.precio, btn);
@@ -684,6 +680,9 @@ function limpiarBusqueda() {
 
 // Cierre fuera del carrito / seguimiento
 document.addEventListener('click', function(e) {
+  const langBtn = document.getElementById('idioma-toggle');
+  if (langBtn?.contains(e.target)) return;
+
   const panel = document.getElementById('cart-panel');
   const toggle = document.getElementById('cart-toggle');
   const overlay = document.getElementById('cart-overlay');
@@ -701,6 +700,14 @@ document.addEventListener('click', function(e) {
       closeTracking();
     }
   }
+});
+
+// Re-renderizar contenido dinámico al cambiar el idioma
+document.addEventListener('idioma-cambiado', () => {
+  actualizarInterfazMesa();
+  renderCart();
+  if (document.getElementById('mesas-hint')) cargarDisponibilidadMesas();
+  if (document.getElementById('tracking-content')) renderSeguimiento();
 });
 
 // Exponer funciones globalmente
