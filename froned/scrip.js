@@ -26,6 +26,7 @@ document.addEventListener('DOMContentLoaded', () => {
   cargarCarrito();
   cargarMenuDesdeBD();
   initReservasForm();
+  actualizarVisibilidadTracking();
 });
 
 // ============================================================
@@ -209,6 +210,7 @@ function openCart() {
   const panel = document.getElementById('cart-panel');
   const overlay = document.getElementById('cart-overlay');
   if (panel && overlay) {
+    closeTracking();
     panel.classList.add('active');
     overlay.classList.add('active');
   }
@@ -286,6 +288,9 @@ async function sendOrder() {
     });
     const data = await response.json();
     if (data.success) {
+      // Guardar el pedido para poder seguir su estado
+      localStorage.setItem('pedido_actual', JSON.stringify({ id: data.pedido_id, fecha: Date.now() }));
+      actualizarVisibilidadTracking();
       let text = `*Sapy'Aite — Pedido Confirmado*\nMesa N°: ${mesa.numero}\nPedido ID: #${data.pedido_id}\n`;
       let total = 0;
       cart.forEach(i => {
@@ -304,6 +309,135 @@ async function sendOrder() {
     }
   } catch (error) {
     alert('Error de red. ¿Backend activo?');
+  }
+}
+
+// ============================================================
+// SEGUIMIENTO DEL PEDIDO
+// ============================================================
+const ESTADOS_ORDEN = ['pendiente', 'en_preparacion', 'listo', 'entregado', 'pagado'];
+const NOMBRES_ESTADO = {
+  pendiente:       'Pendiente',
+  en_preparacion:  'En preparación',
+  listo:           'Listo',
+  entregado:       'Entregado',
+  pagado:          'Pagado',
+  cancelado:       'Cancelado'
+};
+let trackingInterval = null;
+
+function tEstado(estado) {
+  return NOMBRES_ESTADO[estado] || estado;
+}
+
+function getPedidoGuardado() {
+  const saved = localStorage.getItem('pedido_actual');
+  if (!saved) return null;
+  try {
+    const pedidoRef = JSON.parse(saved);
+    return pedidoRef && pedidoRef.id ? pedidoRef : null;
+  } catch(e) {
+    return null;
+  }
+}
+
+function actualizarVisibilidadTracking() {
+  const btn = document.getElementById('tracking-toggle');
+  if (btn) btn.style.display = getPedidoGuardado() ? 'flex' : 'none';
+}
+
+async function cargarEstadoPedido() {
+  const pedidoRef = getPedidoGuardado();
+  if (!pedidoRef) return null;
+  try {
+    const res = await fetch(`${API_BASE}/pedido/${pedidoRef.id}/estado`);
+    const data = await res.json();
+    return data.success ? data.pedido : null;
+  } catch (e) {
+    console.error('Error cargando estado del pedido:', e);
+    return null;
+  }
+}
+
+function pasoDeEstado(estado) {
+  const idx = ESTADOS_ORDEN.indexOf(estado);
+  return idx === -1 ? null : idx;
+}
+
+async function renderSeguimiento() {
+  const body = document.getElementById('tracking-content');
+  const idElem = document.getElementById('tracking-id');
+  if (!body) return;
+
+  const pedido = await cargarEstadoPedido();
+
+  if (!pedido) {
+    body.innerHTML = `<p class="tracking-empty">No hay un pedido para seguir. Enviá tu pedido primero.</p>`;
+    return;
+  }
+
+  if (idElem) idElem.textContent = `#${pedido.id_pedido}`;
+
+  const cancelado = pedido.estado === 'cancelado';
+  const paso = pasoDeEstado(pedido.estado);
+
+  let pasosHtml = '';
+  ESTADOS_ORDEN.forEach((est, i) => {
+    const activo = !cancelado && paso !== null && i <= paso;
+    const actual = !cancelado && paso !== null && i === paso;
+    pasosHtml += `
+      <div class="tracking-step ${activo ? 'active' : ''} ${actual ? 'current' : ''}">
+        <div class="tracking-dot"></div>
+        <span class="tracking-step-label">${tEstado(est)}</span>
+      </div>`;
+  });
+
+  const itemsHtml = (pedido.items || []).map(it => `
+    <div class="tracking-item">
+      <span>${it.cantidad}x ${escapeHtml(it.nombre)}</span>
+      <span>$${it.subtotal.toLocaleString('es-AR')}</span>
+    </div>`).join('') || '<p class="tracking-empty">Sin ítems.</p>';
+
+  body.innerHTML = `
+    ${cancelado
+      ? `<p class="tracking-cancelado">✕ Pedido cancelado</p>`
+      : `<div class="tracking-steps">${pasosHtml}</div>`}
+    <div class="tracking-detalle">
+      <p class="tracking-estado-line">Estado: <strong>${tEstado(pedido.estado)}</strong></p>
+      <div class="tracking-items">${itemsHtml}</div>
+      <div class="tracking-total">Total: <strong>$${pedido.total.toLocaleString('es-AR')}</strong></div>
+    </div>`;
+}
+
+function openTracking() {
+  const panel = document.getElementById('tracking-panel');
+  const overlay = document.getElementById('tracking-overlay');
+  if (!panel || !overlay) return;
+  closeCart();
+  panel.classList.add('active');
+  overlay.classList.add('active');
+  renderSeguimiento();
+  if (trackingInterval) clearInterval(trackingInterval);
+  trackingInterval = setInterval(renderSeguimiento, 15000);
+}
+
+function closeTracking() {
+  const panel = document.getElementById('tracking-panel');
+  const overlay = document.getElementById('tracking-overlay');
+  if (panel) panel.classList.remove('active');
+  if (overlay) overlay.classList.remove('active');
+  if (trackingInterval) {
+    clearInterval(trackingInterval);
+    trackingInterval = null;
+  }
+}
+
+function toggleTracking() {
+  const panel = document.getElementById('tracking-panel');
+  if (panel && panel.classList.contains('active')) {
+    closeTracking();
+  } else {
+    openTracking();
   }
 }
 
@@ -548,7 +682,7 @@ function limpiarBusqueda() {
   if (categoriaActiva_Global) renderizarProductos(categoriaActiva_Global);
 }
 
-// Cierre fuera del carrito
+// Cierre fuera del carrito / seguimiento
 document.addEventListener('click', function(e) {
   const panel = document.getElementById('cart-panel');
   const toggle = document.getElementById('cart-toggle');
@@ -556,6 +690,15 @@ document.addEventListener('click', function(e) {
   if (panel?.classList.contains('active') && overlay?.classList.contains('active')) {
     if (!panel.contains(e.target) && !toggle?.contains(e.target)) {
       closeCart();
+    }
+  }
+
+  const tPanel = document.getElementById('tracking-panel');
+  const tToggle = document.getElementById('tracking-toggle');
+  const tOverlay = document.getElementById('tracking-overlay');
+  if (tPanel?.classList.contains('active') && tOverlay?.classList.contains('active')) {
+    if (!tPanel.contains(e.target) && !tToggle?.contains(e.target)) {
+      closeTracking();
     }
   }
 });
@@ -568,3 +711,4 @@ window.toggleCart = toggleCart;
 window.sendOrder = sendOrder;
 window.filtrarMenu = filtrarMenu;
 window.limpiarBusqueda = limpiarBusqueda;
+window.toggleTracking = toggleTracking;

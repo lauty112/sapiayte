@@ -12,6 +12,7 @@ from conexion import (
     obtener_mesas_disponibles,
     actualizar_estado_pedido,
     obtener_pedidos_por_mesa,
+    obtener_pedido_por_id,
     obtener_categorias,
     validar_mesa,
     PedidoError
@@ -135,6 +136,21 @@ def crear_nuevo_pedido():
         return jsonify({'success': True, 'pedido_id': pedido_id})
 
     return jsonify({'success': False, 'error': 'Error interno al crear el pedido'})
+
+
+@app.route('/api/pedido/<int:pedido_id>/estado', methods=['GET'])
+def get_pedido_estado(pedido_id):
+    """Devuelve el estado actual de un pedido para el seguimiento del cliente."""
+    pedido = obtener_pedido_por_id(pedido_id)
+    if not pedido:
+        return jsonify({'success': False, 'error': 'Pedido no encontrado'})
+
+    # Si hay una mesa en sesión, el pedido debe pertenecer a esa mesa
+    mesa_sesion = session.get('mesa_id')
+    if mesa_sesion and pedido['mesa_id'] != mesa_sesion:
+        return jsonify({'success': False, 'error': 'No autorizado'}), 403
+
+    return jsonify({'success': True, 'pedido': pedido})
 
 
 @app.route('/api/reserva/crear', methods=['POST'])

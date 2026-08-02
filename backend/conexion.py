@@ -342,6 +342,58 @@ def obtener_pedidos_por_mesa(mesa_id: int) -> list:
     return pedidos
 
 
+def obtener_pedido_por_id(pedido_id: int) -> dict | None:
+    """
+    Devuelve la información de un pedido para su seguimiento por el cliente.
+    Retorna {id_pedido, mesa_id, estado, estado_descripcion, total,
+             fecha_creacion, items: [{nombre, cantidad, precio_unitario, subtotal}]}
+    o None si el pedido no existe.
+    """
+    try:
+        with get_connection() as conn:
+            with conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
+                cur.execute("""
+                    SELECT
+                        p.id_pedido,
+                        p.mesa_id,
+                        p.total,
+                        p.fecha_creacion,
+                        e.nombre AS estado,
+                        e.descripcion AS estado_descripcion
+                    FROM pedidos p
+                    JOIN estados_pedido e ON e.id_estado = p.estado_id
+                    WHERE p.id_pedido = %s
+                """, (pedido_id,))
+                pedido = cur.fetchone()
+                if not pedido:
+                    return None
+
+                cur.execute("""
+                    SELECT
+                        pr.nombre,
+                        dp.cantidad,
+                        dp.precio_unitario,
+                        dp.subtotal
+                    FROM detalles_pedido dp
+                    JOIN productos pr ON pr.id_producto = dp.producto_id
+                    WHERE dp.pedido_id = %s
+                """, (pedido_id,))
+                items = cur.fetchall()
+
+                resultado = dict(pedido)
+                resultado['total'] = float(resultado['total']) if resultado['total'] is not None else 0
+                resultado['items'] = [{
+                    'nombre':         item['nombre'],
+                    'cantidad':       item['cantidad'],
+                    'precio_unitario': float(item['precio_unitario']),
+                    'subtotal':       float(item['subtotal'])
+                } for item in items]
+                return resultado
+    except Exception as e:
+        print(f"[ERROR] obtener_pedido_por_id: {e}")
+        return None
+
+
 def actualizar_estado_pedido(pedido_id: int, nuevo_estado: str) -> bool:
     """
     Cambia el estado de un pedido.
