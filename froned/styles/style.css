@@ -513,6 +513,14 @@ body.menu-abierto { overflow: hidden; }
   flex-shrink: 0;
 }
 
+.item-img-real {
+  width: 80px;
+  height: 80px;
+  object-fit: cover;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #2a2218, #3d2e1a);
+}
+
 .item-placeholder {
   width: 80px;
   height: 80px;

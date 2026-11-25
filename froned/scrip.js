@@ -672,8 +672,11 @@ function renderizarProductos(categoria, filtro = '') {
   productos.forEach(p => {
     const div = document.createElement('div');
     div.className = 'menu-item';
+    const imagen = p.imagen_url
+      ? `<img class="item-img-real" src="${escapeHtml(p.imagen_url)}" alt="${escapeHtml(p.nombre)}" loading="lazy">`
+      : '<div class="item-placeholder"></div>';
     div.innerHTML = `
-      <div class="item-img"><div class="item-placeholder">🍽️</div></div>
+      <div class="item-img">${imagen}</div>
       <div class="item-info">
         <div class="item-title-row">
           <h3>${escapeHtml(p.nombre)}</h3>
@@ -682,6 +685,14 @@ function renderizarProductos(categoria, filtro = '') {
         <p class="desc">${escapeHtml(p.descripcion || T('producto.sinDesc'))}</p>
       </div>
     `;
+    const img = div.querySelector('.item-img-real');
+    if (img) {
+      img.onerror = () => {
+        const placeholder = document.createElement('div');
+        placeholder.className = 'item-placeholder';
+        img.replaceWith(placeholder);
+      };
+    }
     const btn = document.createElement('button');
     btn.className = 'btn-add';
     btn.textContent = T('producto.agregar');
