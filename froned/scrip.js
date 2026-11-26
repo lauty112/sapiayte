@@ -674,7 +674,7 @@ function renderizarProductos(categoria, filtro = '') {
     div.className = 'menu-item';
     const imagen = p.imagen_url
       ? `<img class="item-img-real" src="${escapeHtml(p.imagen_url)}" alt="${escapeHtml(p.nombre)}" loading="lazy">`
-      : '<div class="item-placeholder">👩‍👧</div>';
+      : '<div class="item-placeholder">🍽️</div>';
     div.innerHTML = `
       <div class="item-img">${imagen}</div>
       <div class="item-info">
@@ -690,6 +690,7 @@ function renderizarProductos(categoria, filtro = '') {
       img.onerror = () => {
         const placeholder = document.createElement('div');
         placeholder.className = 'item-placeholder';
+        placeholder.textContent = '🍽️';
         img.replaceWith(placeholder);
       };
     }
